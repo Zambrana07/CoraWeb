@@ -1,2 +1,2 @@
 # CoraWeb
-Aplicacion para la soda armonia
+Aplicacion para la Armonia
