@@ -144,7 +144,7 @@ function MyMapComponent() {
             {customMarkers.map((marker) => (
                 <Marker key={marker.id} position={marker.position}>
                     <Popup>
-                        <strong>Punto Identificado</strong> <br />
+                        <strong>Punto Identificado</strong> <br/>
                         ID: {marker.id} <br />
                         Registrado a las: {marker.timestamp}
                     </Popup>
