@@ -1,17 +1,46 @@
+/* Asegura que las capas base del documento ocupen la totalidad de la ventana sin márgenes residuales */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; 
+}
+
+/* Establece que el contenedor principal ocupe todo el visor del navegador */
 .app {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  width: 100vw;
+  height: 100vh;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Evita que aparezcan barras de desplazamiento si el contenido excede el límite */
+  position: relative; /* Permite que los elementos internos se posicionen de forma absoluta respecto a este contenedor */
 }
 
-.app h1 {
-  font-size: 2rem;
-  color: #333;
+/* Define las dimensiones del mapa para que cubra la totalidad de la pantalla disponible */
+.leaflet-container {
+  width: 100% !important;
+  height: 100% !important;
+  z-index: 1; /* Asegura que el mapa se mantenga en la capa base del diseño */
 }
 
+/* Ubica los elementos de texto flotando sobre la interfaz del mapa */
+.app h1, .app p {
+  position: absolute;
+  top: 20px;
+  left: 60px; /* Se ajusta ligeramente para no obstruir los controles de zoom (+/-) */
+  z-index: 1000; /* Eleva el texto por encima de las capas del mapa para mantenerlo visible */
+  background: rgba(255, 255, 255, 0.9); /* Aplica un fondo semi-transparente para mejorar la legibilidad */
+  padding: 10px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Añade una sombra sutil para dar profundidad al elemento */
+  margin: 0;
+  pointer-events: none; /* Permite que las interacciones del ratón pasen a través del texto hacia el mapa */
+}
+
+/* Ajusta el estilo del párrafo para diferenciarlo visualmente del título */
 .app p {
-  color: #666;
+  top: 85px; /* Desplaza el párrafo hacia abajo para que no se solape con el encabezado */
+  font-size: 0.9rem;
+  color: #555;
 }
