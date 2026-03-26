@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import './App.css';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents } from 'react-leaflet';
 
-// Importación de activos visuales para el renderizado del marcador
+// Importación de activos visuales para el renderizado del marcador predeterminado
 import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
 import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -22,9 +22,25 @@ L.Icon.Default.mergeOptions({
 });
 
 /**
+ * Sub-componente técnico diseñado para gestionar eventos de interacción del usuario.
+ * El sistema utiliza 'useMapEvents' para capturar clics en el lienzo del mapa y
+ * ejecutar la función de callback proporcionada por el padre.
+ */
+function MapEventsHandler({ onMapClick }) {
+    useMapEvents({
+        click: (e) => {
+            // El sistema captura las coordenadas geográficas exactas del clic.
+            onMapClick(e.latlng);
+        },
+    });
+    // Este componente es puramente lógico y no renderiza elementos visuales.
+    return null;
+}
+
+/**
  * Sub-componente técnico diseñado para sincronizar la vista del mapa.
  * El sistema utiliza el hook 'useMap' para desplazar la cámara de forma
- * automática cuando se detectan nuevas coordenadas geográficas.
+ * automática cuando se detectan nuevas coordenadas geográficas de usuario.
  */
 function RecenterMap({ position }) {
     const map = useMap();
@@ -48,12 +64,16 @@ function App() {
 }
 
 /**
- * Componente de gestión cartográfica.
- * Administra la obtención de coordenadas en tiempo real y el renderizado del mapa.
+ * Componente de gestión cartográfica avanzada.
+ * Administra la obtención de coordenadas en tiempo real, la lista de marcadores personalizados 
+ * y la renderización interactiva del mapa.
  */
 function MyMapComponent() {
     // El sistema establece una posición inicial (Heredia) mientras se procesa el GPS.
-    const [position, setPosition] = useState([10.0024, -84.1165]);
+    const [userPosition, setUserPosition] = useState([10.0024, -84.1165]);
+    
+    // Estado destinado a almacenar la lista de marcadores personalizados agregados por el usuario.
+    const [customMarkers, setCustomMarkers] = useState([]);
 
     useEffect(() => {
         // Verifica la disponibilidad de la API de geolocalización en el navegador del usuario.
@@ -62,8 +82,8 @@ function MyMapComponent() {
                 (pos) => {
                     const { latitude, longitude } = pos.coords;
                     // Actualiza el estado con la posición física real del dispositivo.
-                    setPosition([latitude, longitude]);
-                    console.log("Sistema: Coordenadas actualizadas mediante GPS.");
+                    setUserPosition([latitude, longitude]);
+                    console.log("Sistema: Coordenadas de usuario actualizadas mediante GPS.");
                 },
                 (error) => {
                     // El sistema registra fallos en la obtención de señal o denegación de permisos.
@@ -71,16 +91,33 @@ function MyMapComponent() {
                 },
                 { 
                     enableHighAccuracy: true, // Maximiza la precisión en dispositivos móviles.
-                    timeout: 5000 
+                    timeout: 10000 
                 }
             );
         }
     }, []);
 
+    /**
+     * Función controladora para la adición de marcadores personalizados.
+     * El sistema recibe un objeto 'latlng', genera un identificador único y actualiza
+     * el estado de la lista de marcadores, provocando un re-renderizado.
+     */
+    const handleAddMarker = (latlng) => {
+        const newMarker = {
+            id: new Date().getTime(), // Generación de ID único basado en la marca de tiempo.
+            position: [latlng.lat, latlng.lng],
+            timestamp: new Date().toLocaleTimeString() // Registro de la hora de creación.
+        };
+        
+        // El sistema utiliza el operador de propagación para añadir el nuevo elemento sin mutar el estado anterior.
+        setCustomMarkers((prevMarkers) => [...prevMarkers, newMarker]);
+        console.log(`Sistema: Nuevo punto identificado en [${latlng.lat}, ${latlng.lng}]`);
+    };
+
     return (
         /* Renderizado del contenedor con dimensiones de pantalla completa */
         <MapContainer 
-            center={position} 
+            center={userPosition} 
             zoom={15} 
             style={{ height: '100vh', width: '100vw' }}
         >
@@ -89,15 +126,30 @@ function MyMapComponent() {
                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
             />
             
-            {/* Ejecuta el recienteado automático de la cámara */}
-            <RecenterMap position={position} />
+            {/* Ejecuta el recienteado automático de la cámara hacia la ubicación del usuario */}
+            <RecenterMap position={userPosition} />
+            
+            {/* Activa el manejador de eventos para capturar los clics del usuario en el mapa */}
+            <MapEventsHandler onMapClick={handleAddMarker} />
 
-            <Marker position={position}>
+            {/* Renderizado del marcador de la ubicación actual del usuario */}
+            <Marker position={userPosition}>
                 <Popup>
                     <strong>Cora Web</strong> <br />
-                    Ubicación detectada en tiempo real.
+                    Ubicación detectada del usuario.
                 </Popup>
             </Marker>
+
+            {/* Mapeo iterativo de la lista de marcadores personalizados */}
+            {customMarkers.map((marker) => (
+                <Marker key={marker.id} position={marker.position}>
+                    <Popup>
+                        <strong>Punto Identificado</strong> <br />
+                        ID: {marker.id} <br />
+                        Registrado a las: {marker.timestamp}
+                    </Popup>
+                </Marker>
+            ))}
         </MapContainer>
     );
 }
