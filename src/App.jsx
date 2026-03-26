@@ -2,10 +2,19 @@ import './App.css'
 
 function App() {
   return (
-    <div className="app">
-      <h1>Cora Web</h1>
-      <p>Plantilla inicial de Cora, el header  y el footer se crearan en el futuro/por separado</p>
-    </div>
+    <>
+      <div className="main">
+        <h1>Archivero</h1>
+      </div>
+
+      <div className="carrousel-section">
+        <div className="carrousel">
+          <div className="carrousel-item">Hola</div>
+          <div className="carrousel-item">Hola</div>
+          <div className="carrousel-item">Item 3</div>
+        </div>
+      </div>
+    </>
   )
 }
 
