@@ -4,43 +4,66 @@ html, body, #root {
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; 
+  overflow: hidden; /* Evita cualquier desplazamiento accidental que genere espacios en blanco */
 }
 
-/* Establece que el contenedor principal ocupe todo el visor del navegador */
+/* Establece que el contenedor principal ocupe todo el visor del navegador de forma relativa */
 .app {
   width: 100vw;
   height: 100vh;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Evita que aparezcan barras de desplazamiento si el contenido excede el límite */
-  position: relative; /* Permite que los elementos internos se posicionen de forma absoluta respecto a este contenedor */
+  position: relative; /* Actúa como marco de referencia para los elementos flotantes */
+  overflow: hidden;
 }
 
-/* Define las dimensiones del mapa para que cubra la totalidad de la pantalla disponible */
+/* Define las dimensiones del mapa para que consuma todo el espacio disponible en el visor */
 .leaflet-container {
-  width: 100% !important;
-  height: 100% !important;
-  z-index: 1; /* Asegura que el mapa se mantenga en la capa base del diseño */
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 1; /* Mantiene la capa del mapa en la base de la jerarquía visual */
 }
 
-/* Ubica los elementos de texto flotando sobre la interfaz del mapa */
-.app h1, .app p {
+/* Contenedor especializado para agrupar los elementos de la interfaz de usuario sobre el mapa */
+.ui-container {
   position: absolute;
   top: 20px;
-  left: 60px; /* Se ajusta ligeramente para no obstruir los controles de zoom (+/-) */
-  z-index: 1000; /* Eleva el texto por encima de las capas del mapa para mantenerlo visible */
-  background: rgba(255, 255, 255, 0.9); /* Aplica un fondo semi-transparente para mejorar la legibilidad */
-  padding: 10px 20px;
+  left: 60px; /* Se desplaza para evitar la superposición con los controles de zoom nativos */
+  z-index: 1000; /* Superpone la interfaz sobre el mapa para garantizar su visibilidad constante */
+  background: rgba(255, 255, 255, 0.9); /* Proporciona un fondo con opacidad alta para mejorar el contraste */
+  padding: 15px 20px;
   border-radius: 12px;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1); /* Añade una sombra sutil para dar profundidad al elemento */
-  margin: 0;
-  pointer-events: none; /* Permite que las interacciones del ratón pasen a través del texto hacia el mapa */
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* Aplica un sombreado para dar profundidad */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: auto; /* Asegura que los elementos internos sean interactuables */
 }
 
-/* Ajusta el estilo del párrafo para diferenciarlo visualmente del título */
-.app p {
-  top: 85px; /* Desplaza el párrafo hacia abajo para que no se solape con el encabezado */
-  font-size: 0.9rem;
+/* Ajustes tipográficos para el título y el párrafo dentro de la interfaz */
+.ui-container h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.ui-container p {
+  margin: 0;
+  font-size: 0.85rem;
   color: #555;
+}
+
+/* Estilo para el botón de activación de ubicación */
+.location-btn {
+  background-color: #00978D;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.location-btn:hover {
+  background-color: #47c9c7; /* Cambia el color al pasar el cursor para feedback visual */
 }
