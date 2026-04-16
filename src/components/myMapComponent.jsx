@@ -64,26 +64,34 @@ function MyMapComponent() {
     return (
         <div style={{ position: 'relative', height: '100vh', width: '100vw' }}>
             
-            {/* UI Flotante */}
-            <div style={{
-                position: 'absolute', top: '20px', left: '50px', zIndex: 1000, 
-                backgroundColor: 'white', padding: '20px', borderRadius: '12px',
-                boxShadow: '0 4px 15px rgba(0,0,0,0.3)', display: 'flex',
-                flexDirection: 'column', gap: '10px', minWidth: '220px'
-            }}>
+            {/* Cuadro Flotante - UI */}
+                <div style={{
+                    position: 'fixed', 
+                    top: '80px',   
+                    left: '20px', 
+                    zIndex: 1000, 
+                    backgroundColor: 'white', 
+                    padding: '20px', 
+                    borderRadius: '12px',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)', 
+                    display: 'flex',
+                    flexDirection: 'column', 
+                    gap: '10px', 
+                    minWidth: '220px'
+                }}>
                 <h2 style={{ margin: '0', fontSize: '1.3rem' }}>Cora Web</h2>
                 
                 <button onClick={activateLocation} style={btnStyle(userPosition ? '#4dcec5' : '#00978D')}>
-                    {userPosition ? '✔️ Ubicación Lista' : '📍 Activar mi ubicación'}
+                    {userPosition ? 'Ubicación Lista' : 'Activar mi ubicación'}
                 </button>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                     <button onClick={() => setIsAddingMode(true)} style={btnStyle(isAddingMode ? '#A7BD8A' : '#688f35')}>
-                        ➕ Iniciar Marcado
+                        Registrar punto de localización de residuos
                     </button>
                     {isAddingMode && (
                         <button onClick={() => setIsAddingMode(false)} style={btnStyle('#a1303c')}>
-                            ❌ Cancelar
+                            Cancelar / Terminar
                         </button>
                     )}
                 </div>
@@ -96,7 +104,7 @@ function MyMapComponent() {
 
                 {userPosition && (
                     <Marker position={userPosition}>
-                        <Popup>Tu ubicación actual</Popup>
+                        <Popup>Ubicación actual</Popup>
                     </Marker>
                 )}
 
