@@ -198,6 +198,13 @@ function MyMapComponent() {
                                     <option value="alto">Alto</option>
                                 </select>
 
+                                {/* Tipo de material */}
+                                <label style={{fontSize: '0.8rem'}}>El material clasifica como:</label>
+                                <select value={formData.materialType} onChange={(e) => setFormData({...formData, materialType: e.target.value})} style={{ padding: '5px' }}>
+                                    <option value="reciclable">Reciclable</option>
+                                    <option value="no reciclable">No reciclable</option>
+                                </select>
+
                                 <button type="submit" style={btnStyle('#00978D')}>Guardar Punto</button>
                             </form>
                         </Popup>
