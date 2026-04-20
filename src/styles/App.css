@@ -1,0 +1,92 @@
+/* Asegura que las capas base del documento ocupen la totalidad de la ventana sin márgenes residuales */
+html, body, #root {
+  height: 100%;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden; /* Evita cualquier desplazamiento accidental que genere espacios en blanco */
+}
+
+/* Establece que el contenedor principal ocupe todo el visor del navegador de forma relativa */
+.app {
+  display: flex;
+  flex-direction: column; /* Alinea Header, Mapa y Footer en vertical */
+  height: 100vh;         /* Ocupa el total de la ventana */
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;      /* Mantenemos esto para que no haya scroll general */
+}
+
+/* Define las dimensiones del mapa para que consuma todo el espacio disponible en el visor */
+.leaflet-container {
+  flex: 1;               /* Esto hace que el mapa use TODO el espacio que sobre */
+  width: 100% !important;
+  height: 100% !important; 
+  z-index: 1;
+}
+
+/* Contenedor especializado para agrupar los elementos de la interfaz de usuario sobre el mapa */
+.ui-container {
+  position: absolute;
+  top: 80px;
+  left: 60px; /* Se desplaza para evitar la superposición con los controles de zoom nativos */
+  z-index: 1000; /* Superpone la interfaz sobre el mapa para garantizar su visibilidad constante */
+  background: rgba(255, 255, 255, 0.9); /* Proporciona un fondo con opacidad alta para mejorar el contraste */
+  padding: 15px 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15); /* Aplica un sombreado para dar profundidad */
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  pointer-events: auto; /* Asegura que los elementos internos sean interactuables */
+}
+
+
+/* Ajustes tipográficos para el título y el párrafo dentro de la interfaz */
+.ui-container h1 {
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.ui-container p {
+  margin: 0;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+/* Estilo para el botón de activación de ubicación */
+.location-btn {
+  background-color: #00978D;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.2s ease;
+}
+
+.location-btn:hover {
+  background-color: #47c9c7; /* Cambia el color al pasar el cursor para feedback visual */
+}
+
+.footer {
+  background-color: #04504F;
+  color: white;
+  padding: 10px;
+  text-align: center;
+  z-index: 1000; /* Para que el mapa no tape al footer */
+}
+
+
+.map-container {
+  flex: 1;            
+  width: 100%;
+  position: relative; 
+  overflow: hidden;
+}
+
+.map-container > div {
+  height: 100% !important;
+}
