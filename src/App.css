@@ -1,0 +1,40 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Arial', sans-serif; 
+}
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.carrousel-section {
+  height: 46vh;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.carrousel {
+  height: 46vh;
+  background-color: aquamarine;
+  width: 80%;
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding-bottom: 1rem;
+}
+
+.carrousel-item {
+  min-width: 200px;
+  height: 120px;
+  background: #c52828;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  color: white;
+}
