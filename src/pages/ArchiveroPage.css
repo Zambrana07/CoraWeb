@@ -1,0 +1,249 @@
+.archivero-page {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100vw;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  background-image: url("../assets/Fondo.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.archivero-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.105);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.archivero-page-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  width: 100%;
+  background-color: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  overflow-y: auto;
+}
+
+.archivero-page-title {
+  text-align: center;
+  margin: 0;
+  color: #04504f;
+  font-size: 1.6rem;
+  background: #E1DEA3;
+  border: 1px solid #c9c57f;
+  border-radius: 10px;
+  padding: 0.55rem 0.8rem;
+}
+
+.archivero-search-wrap {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 240px;
+  gap: 0.6rem;
+}
+
+.archivero-search {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #04504f;
+  border-radius: 8px;
+  padding: 0 0.8rem;
+  font-size: 1rem;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.archivero-region-filter {
+  min-height: 42px;
+  border: 1px solid #04504f;
+  border-radius: 8px;
+  padding: 0 0.7rem;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+  color: #04504f;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.archivero-section {
+  width: min(900px, 100%);
+  margin: 0 auto;
+}
+
+.archivero-section-title {
+  margin: 0 0 0.5rem;
+  color: #04504f;
+  font-size: 1.2rem;
+  background: #E1DEA3;
+  border: 1px solid #c9c57f;
+  border-radius: 10px;
+  padding: 0.4rem 0.7rem;
+}
+
+.archivero-carousel-base {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.7rem;
+  border-radius: 10px;
+  padding: 0.7rem;
+}
+
+.archivero-carousel-btn {
+  background: #04504f;
+  color: #ffffff;
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
+.archivero-carousel-track {
+  flex: 1;
+  display: flex;
+  gap: 0.8rem;
+  overflow: hidden;
+}
+
+.archivero-carousel-item {
+  min-width: calc((100% - 1.6rem) / 3);
+  border: 1px solid rgba(4, 80, 79, 0.85);
+  border-radius: 8px;
+  padding: 1rem;
+  text-align: center;
+  color: #04504f;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.archivero-carousel-image {
+  width: 70px;
+  height: 70px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.archivero-all-title {
+  width: min(900px, 100%);
+  margin: 0.5rem auto 0;
+  color: #04504f;
+  text-align: center;
+  background: #E1DEA3;
+  border: 1px solid #c9c57f;
+  border-radius: 10px;
+  padding: 0.4rem 0.7rem;
+}
+
+.archivero-list {
+  width: min(900px, 100%);
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.archivero-list-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  border: 1px solid rgba(4, 80, 79, 0.85);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem;
+  background: rgba(255, 255, 255, 0.92);
+}
+
+.archivero-list-image {
+  width: 56px;
+  height: 56px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.archivero-list-name {
+  color: #04504f;
+  font-weight: 600;
+}
+
+.archivero-list-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.archivero-item-region {
+  color: rgba(4, 80, 79, 0.85);
+}
+
+@media (max-width: 900px) {
+  .archivero-page-content {
+    padding: 1rem;
+  }
+
+  .archivero-search-wrap {
+    grid-template-columns: 1fr 180px;
+  }
+
+  .archivero-carousel-item {
+    min-width: calc((100% - 0.8rem) / 2);
+  }
+}
+
+@media (max-width: 640px) {
+  .archivero-search-wrap {
+    grid-template-columns: 1fr;
+  }
+
+  .archivero-page-title {
+    font-size: 1.3rem;
+  }
+
+  .archivero-section-title,
+  .archivero-all-title {
+    font-size: 1.1rem;
+  }
+
+  .archivero-carousel-base {
+    gap: 0.4rem;
+  }
+
+  .archivero-carousel-btn {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+
+  .archivero-carousel-item {
+    min-width: 100%;
+    padding: 0.8rem;
+  }
+
+  .archivero-carousel-image {
+    width: 56px;
+    height: 56px;
+  }
+
+  .archivero-list-item {
+    padding: 0.45rem 0.6rem;
+  }
+
+  .archivero-list-image {
+    width: 48px;
+    height: 48px;
+  }
+}
