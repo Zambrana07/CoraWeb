@@ -42,10 +42,11 @@ function MyMapComponent() {
     const [userPosition, setUserPosition] = useState(null);
     const [customMarkers, setCustomMarkers] = useState([]); // Marcadores definitivos
     const [isAddingMode, setIsAddingMode] = useState(false);
+    const regionOptions = ["Colegio CTP CIT", "New hope", "Soda armonia"];
     
     // Estados para el flujo del formulario
     const [tempMarker, setTempMarker] = useState(null); // Marcador que se está creando
-    const [formData, setFormData] = useState({ name: '', description: '' });
+    const [formData, setFormData] = useState({ name: '', description: '', region: regionOptions[0] });
 
     const activateLocation = () => {
         if ("geolocation" in navigator) {
@@ -59,7 +60,7 @@ function MyMapComponent() {
 
     // Al hacer clic, crea un marcador temporal y abre el form
     const handleMapClick = (latlng) => {
-        setFormData({ name: '', description: '' }); // Limpiar campos
+        setFormData({ name: '', description: '', region: regionOptions[0] }); // Limpiar campos
         setTempMarker({
             position: [latlng.lat, latlng.lng],
             timestamp: new Date().toLocaleTimeString()
@@ -69,7 +70,7 @@ function MyMapComponent() {
     // Función para guardar los datos del formulario
     const handleFormSubmit = (e) => {
         e.preventDefault();
-        if (!formData.name || !formData.description) {
+        if (!formData.name || !formData.region) {
             alert("Por favor completa los campos antes de guardar.");
             return;
         }
@@ -81,6 +82,15 @@ function MyMapComponent() {
         };
 
         setCustomMarkers((prev) => [...prev, newMarker]);
+        try {
+            const storageKey = "archiveroPoints";
+            const rawPoints = localStorage.getItem(storageKey);
+            const parsedPoints = rawPoints ? JSON.parse(rawPoints) : [];
+            const safePoints = Array.isArray(parsedPoints) ? parsedPoints : [];
+            const savedPoint = { id: newMarker.id, name: newMarker.name, region: newMarker.region };
+            localStorage.setItem(storageKey, JSON.stringify([savedPoint, ...safePoints]));
+        } catch {
+        }
         setTempMarker(null); // Cerramos el popup temporal
     };
 
@@ -150,6 +160,17 @@ function MyMapComponent() {
                                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                                     style={{ padding: '5px' }}
                                 />
+
+                                <label style={{fontSize: '0.8rem'}}>Región:</label>
+                                <select
+                                    value={formData.region}
+                                    onChange={(e) => setFormData({...formData, region: e.target.value})}
+                                    style={{ padding: '5px' }}
+                                >
+                                    {regionOptions.map((region) => (
+                                        <option value={region} key={region}>{region}</option>
+                                    ))}
+                                </select>
 
                                 {/* Tipo de Residuo */}
                                 <label style={{fontSize: '0.8rem'}}>Tipo de residuo:</label>
