@@ -1,5 +1,5 @@
 import MyMapComponent from '../components/myMapComponent';
-import '../styles/App.css';
+import '../styles/MapaHome.css';
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ArchiveroPage from "./ArchiveroPage";
