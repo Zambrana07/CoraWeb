@@ -4,9 +4,24 @@ import './Footer.css';
 const Footer = () => {
   return (
     <footer className="footer">
-      <div className="footer-content">
-        <p>Cora. Todos los derechos reservados.</p>
-      </div>
+      <nav className="footer-content">
+        <a className="footer-item" href="/">
+          <span className="footer-icon">H</span>
+          <span className="footer-label">Home</span>
+        </a>
+        <a className="footer-item" href="/archivero">
+          <span className="footer-icon">A</span>
+          <span className="footer-label">Archivero</span>
+        </a>
+        <a className="footer-item" href="#">
+          <span className="footer-icon">W</span>
+          <span className="footer-label">Web informativa</span>
+        </a>
+        <a className="footer-item" href="#">
+          <span className="footer-icon">P</span>
+          <span className="footer-label">Perfil</span>
+        </a>
+      </nav>
     </footer>
   );
 };
