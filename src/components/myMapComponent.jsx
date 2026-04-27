@@ -42,7 +42,7 @@ function MyMapComponent() {
     const [userPosition, setUserPosition] = useState(null);
     const [customMarkers, setCustomMarkers] = useState([]); // Marcadores definitivos
     const [isAddingMode, setIsAddingMode] = useState(false);
-    const regionOptions = ["Colegio CTP CIT", "New hope", "Soda armonia"];
+    const regionOptions = ["Colegio CTP CIT", "Soda armonia"];
     
     // Estados para el flujo del formulario
     const [tempMarker, setTempMarker] = useState(null); // Marcador que se está creando
