@@ -1,7 +1,7 @@
 import React from "react";
-import "../styles/perfil.css";
+import "../assets/styles/perfil.css";
 
-const Profile = () => {
+function Profile(){
   const posts = Array(6).fill(null);
 
   return (
