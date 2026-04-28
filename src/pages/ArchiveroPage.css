@@ -111,15 +111,24 @@
   cursor: pointer;
 }
 
+.archivero-carousel-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
 .archivero-carousel-track {
   flex: 1;
-  display: flex;
-  gap: 0.8rem;
   overflow: hidden;
 }
 
+.archivero-carousel-slider {
+  display: flex;
+  gap: 0.8rem;
+  transition: transform 0.35s ease;
+}
+
 .archivero-carousel-item {
-  min-width: calc((100% - 1.6rem) / 3);
+  flex: 0 0 calc((100% - (var(--items-per-view) - 1) * 0.8rem) / var(--items-per-view));
   border: 1px solid rgba(4, 80, 79, 0.85);
   border-radius: 8px;
   padding: 1rem;
@@ -199,9 +208,6 @@
     grid-template-columns: 1fr 180px;
   }
 
-  .archivero-carousel-item {
-    min-width: calc((100% - 0.8rem) / 2);
-  }
 }
 
 @media (max-width: 640px) {
@@ -229,7 +235,6 @@
   }
 
   .archivero-carousel-item {
-    min-width: 100%;
     padding: 0.8rem;
   }
 
