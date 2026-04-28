@@ -4,8 +4,6 @@ import ArchiveroPage from "./pages/ArchiveroPage.jsx";
 import Perfil from "./pages/perfil.jsx";
 import NotFound from "./pages/NotFound.tsx";
 
-const queryClient = new QueryClient();
-
 const App = () => (
       <BrowserRouter>
       <Routes>
