@@ -1,6 +1,6 @@
 import React from 'react';
-import './Header.css';
-import logo from '../assets/CoraLogo.png'; 
+import '../assets/styles/Header.css';
+import logo from '../assets/img/CoraLogo.png'; 
 
 const Header = () => {  
   return (

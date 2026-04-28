@@ -1,5 +1,5 @@
 import React from 'react';
-import './Footer.css'; 
+import '../assets/styles/Footer.css'; 
 
 const Footer = () => {
   return (
@@ -17,7 +17,7 @@ const Footer = () => {
           <span className="footer-icon">W</span>
           <span className="footer-label">Web informativa</span>
         </a>
-        <a className="footer-item" href="#">
+        <a className="footer-item" href="/perfil">
           <span className="footer-icon">P</span>
           <span className="footer-label">Perfil</span>
         </a>

@@ -1,8 +1,9 @@
 import MyMapComponent from '../components/myMapComponent';
-import '../styles/MapaHome.css';
+import '../assets/styles/MapaHome.css';
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import ArchiveroPage from "./ArchiveroPage";
+import Perfil from "./perfil";
 
 function App() {
     const currentPath = window.location.pathname.toLowerCase();
@@ -10,7 +11,9 @@ function App() {
     if (currentPath === '/archivero') {
         return <ArchiveroPage />;
     }
-
+    if (currentPath === '/perfil') {
+        return <Perfil />;
+    }
     return (
         <div className="app">
             <Header />

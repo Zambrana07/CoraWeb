@@ -1,16 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-<<<<<<< HEAD
-import logo from "../assets/Coralogo.png";
-import basura from "../assets/basura.jpg";
-=======
-import logo from "../assets/CoraLogo.png";
-import basura1 from "../assets/basura1.jpg";
-import basura2 from "../assets/basura2.jpg";
-import basura3 from "../assets/basura3.webp";
->>>>>>> 62fbf23b2f3701707bd6968065b8722ed005917e
-import "./ArchiveroPage.css";
+import logo from "../assets/img/Coralogo.png";
+import basura from "../assets/img/basura.jpg";
+import "../assets/styles/ArchiveroPage.css";
+import basura1 from "../assets/img/basura1.jpg";
+import basura2 from "../assets/img/basura2.jpg";
+import basura3 from "../assets/img/basura3.webp";
 
 const imagePool = [basura1, basura2, basura3];
 const allowedRegions = ["Colegio CTP CIT", "Soda armonia"];
