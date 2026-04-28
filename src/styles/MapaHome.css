@@ -20,7 +20,7 @@ html, body, #root {
 
 /* Define las dimensiones del mapa para que consuma todo el espacio disponible en el visor */
 .leaflet-container {
-  flex: 1;               /* Esto hace que el mapa use TODO el espacio que sobre */
+  flex: 1;               /* Esto hace que el mapa use todo el espacio que sobre */
   width: 100% !important;
   height: 100% !important; 
   z-index: 1;

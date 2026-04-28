@@ -1,10 +1,7 @@
 import { useMemo, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-<<<<<<< HEAD
-import "../styles/ArchiveroPage.css";
-=======
-import logo from "../assets/CoraLogo.png";
+import logo from "../assets/Coralogo.png";
 import basura from "../assets/basura.jpg";
 import "./ArchiveroPage.css";
 
@@ -23,7 +20,6 @@ const allPoints = [
 const carouselSections = ["Carrusel principal", "Puntos frecuentes", "Agregados recientemente"];
 const regionOptions = ["Colegio CTP CIT", "Soda armonia"];
 const storageKey = "archiveroPoints";
->>>>>>> 3f421d6b6db7e40075fd5b7c56723a1066738055
 
 function ArchiveroPage() {
   const [searchTerm, setSearchTerm] = useState("");
