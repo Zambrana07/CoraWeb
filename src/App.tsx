@@ -2,7 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import MapaHome from "./pages/MapaHome.jsx";
 import ArchiveroPage from "./pages/ArchiveroPage.jsx";
 import Perfil from "./pages/perfil.jsx";
-import NotFound from "./pages/NotFound.tsx";
+import NotFound from "./pages/NotFound.jsx";
 import AgenteCoraChat from "./components/AgenteCoraChat.jsx";
 import CoraTour from "./components/CoraTour.jsx";
 
