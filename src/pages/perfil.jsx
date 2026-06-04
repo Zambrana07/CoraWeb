@@ -12,12 +12,14 @@ Su responsabilidad es:
 3. Controlar si el usuario tiene permisos de administrador.
 4. Pasar la información necesaria a los componentes hijos.
 
-Actualmente utiliza datos temporales (mock data),
-pero en futuras versiones estos datos serán obtenidos
-desde Supabase.
+Las publicaciones creadas en el mapa (myMapComponent) se
+sincronizan en tiempo real desde Firebase Firestore
+(colección "reportes"). Los posts manuales del admin
+permanecen en estado local.
 */
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useFirebaseReportes } from "../hooks/useFirebaseReportes";
 
 // Componentes de la página de perfil
 import PfStats from "../components/perfil-components/perfil-stats";
@@ -29,6 +31,18 @@ import Footer from "../components/Footer";
 import '../styles/perfil.css';
 
 const Perfil = () => {
+
+  // Permite scroll vertical en esta ruta (p. ej. tras visitar el mapa con overflow bloqueado)
+  useEffect(() => {
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflowY;
+    document.body.style.overflow = "auto";
+    document.documentElement.style.overflowY = "auto";
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflowY = prevHtml;
+    };
+  }, []);
 
   /*
   ====================================================
@@ -72,22 +86,21 @@ const Perfil = () => {
   fuente de datos.
   */
 
-  const [posts, setPosts] = useState([
-    {
-      id: 1,
-      title: "Primer Post",
-      description: "Mi primer post en cora",
-      image_url: "https://placehold.co/600x600/png",
-      verified: true,
-    },
-    {
-      id: 2,
-      title: "Segundo Post",
-      description: "Mi segundo post en cora",
-      image_url: "https://placehold.co/600x600/png",
-      verified: false,
-    },
-  ]);
+  const { mapPosts, loading: mapPostsLoading } = useFirebaseReportes();
+
+  // Publicaciones creadas manualmente por el admin (no vienen del mapa)
+  const [localPosts, setLocalPosts] = useState([]);
+
+  const posts = useMemo(
+    () => [...mapPosts, ...localPosts],
+    [mapPosts, localPosts],
+  );
+
+  const setPosts = (updater) => {
+    setLocalPosts((prev) =>
+      typeof updater === "function" ? updater(prev) : updater,
+    );
+  };
 
   /*
   ====================================================
@@ -218,6 +231,7 @@ const Perfil = () => {
         posts={posts}
         setPosts={setPosts}
         isAdmin={isAdmin}
+        mapPostsLoading={mapPostsLoading}
       />
 
       </main>
