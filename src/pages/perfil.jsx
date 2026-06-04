@@ -125,26 +125,29 @@ const Perfil = () => {
       <Header />
 
       <main className="profile-page">
-        <AdminLogin isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
+        <div className="profile-hero-zone">
+          <AdminLogin isAdmin={isAdmin} setIsAdmin={setIsAdmin} />
+          <PfStats
+            perfil={perfil}
+            setPerfil={setPerfil}
+            isAdmin={isAdmin}
+            verifiedCount={verifiedCount}
+            totalPosts={totalPosts}
+          />
+        </div>
 
-        <PfStats
-          perfil={perfil}
-          setPerfil={setPerfil}
-          isAdmin={isAdmin}
-          verifiedCount={verifiedCount}
-          totalPosts={totalPosts}
-        />
+        <div className="profile-page-body">
+          <Abtme perfil={perfil} setPerfil={setPerfil} isAdmin={isAdmin} />
 
-        <Abtme perfil={perfil} setPerfil={setPerfil} isAdmin={isAdmin} />
-
-        <PostsGrid
-          posts={posts}
-          isAdmin={isAdmin}
-          mapPostsLoading={mapPostsLoading}
-          onDeletePost={handleDeletePost}
-          onVerifyPost={handleVerifyPost}
-          onSavePost={handleSavePost}
-        />
+          <PostsGrid
+            posts={posts}
+            isAdmin={isAdmin}
+            mapPostsLoading={mapPostsLoading}
+            onDeletePost={handleDeletePost}
+            onVerifyPost={handleVerifyPost}
+            onSavePost={handleSavePost}
+          />
+        </div>
       </main>
 
       <Footer />
