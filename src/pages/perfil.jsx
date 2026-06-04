@@ -17,7 +17,7 @@ pero en futuras versiones estos datos serán obtenidos
 desde Supabase.
 */
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 // Componentes de la página de perfil
 import PfStats from "../components/perfil-components/perfil-stats";
@@ -29,6 +29,17 @@ import Footer from "../components/Footer";
 import '../styles/perfil.css';
 
 const Perfil = () => {
+
+  useEffect(() => {
+    const prevBody = document.body.style.overflow;
+    const prevHtml = document.documentElement.style.overflowY;
+    document.body.style.overflow = "auto";
+    document.documentElement.style.overflowY = "auto";
+    return () => {
+      document.body.style.overflow = prevBody;
+      document.documentElement.style.overflowY = prevHtml;
+    };
+  }, []);
 
   /*
   ====================================================
