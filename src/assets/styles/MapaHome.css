@@ -1,10 +1,11 @@
-/* Asegura que las capas base del documento ocupen la totalidad de la ventana sin márgenes residuales */
-html, body, #root {
-  height: 100%;
+/* Base del documento — sin bloquear scroll en otras rutas (p. ej. /perfil) */
+html,
+body,
+#root {
   width: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Evita cualquier desplazamiento accidental que genere espacios en blanco */
+  min-height: 100%;
 }
 
 /* Establece que el contenedor principal ocupe todo el visor del navegador de forma relativa */

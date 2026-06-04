@@ -35,6 +35,7 @@ const PostsGrid = ({
   posts,
   setPosts,
   isAdmin,
+  mapPostsLoading = false,
 }) => {
 
   /*
@@ -146,6 +147,10 @@ const PostsGrid = ({
   */
 
   const handleEditPost = (post) => {
+    if (post.fromMap) {
+      handleViewPost(post);
+      return;
+    }
     setSelectedPost(post);
     setModalMode("edit");
     setIsModalOpen(true);
@@ -163,6 +168,13 @@ const PostsGrid = ({
   */
 
   const handleDeletePost = (id) => {
+    const target = posts.find((post) => post.id === id);
+    if (target?.fromMap) {
+      window.alert(
+        "Los reportes del mapa solo se eliminan desde Firebase.",
+      );
+      return;
+    }
 
     const confirmed =
       window.confirm(
@@ -199,6 +211,13 @@ const PostsGrid = ({
   */
 
   const handleVerifyPost = (id) => {
+    const target = posts.find((post) => post.id === id);
+    if (target?.fromMap) {
+      window.alert(
+        "La verificación de reportes del mapa aún no está disponible.",
+      );
+      return;
+    }
 
     setPosts((prevPosts) =>
       prevPosts.map((post) =>
@@ -318,7 +337,13 @@ const PostsGrid = ({
           POSTS GRID
           ========================================== */}
 
-      {posts.length === 0 ? (
+      {mapPostsLoading && posts.length === 0 ? (
+
+        <div className="empty-posts">
+          <p>Cargando reportes del mapa…</p>
+        </div>
+
+      ) : posts.length === 0 ? (
 
         /*
         ======================================
@@ -332,7 +357,7 @@ const PostsGrid = ({
         <div className="empty-posts">
 
           <p>
-            No posts available.
+            No hay publicaciones. Crea un reporte en el mapa para verlo aquí.
           </p>
 
         </div>

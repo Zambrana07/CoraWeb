@@ -25,6 +25,21 @@ Esto permite reutilizar el mismo componente
 para cualquier publicación.
 */
 
+const WASTE_LABELS = {
+  organico: "Orgánico",
+  plastico: "Plástico",
+  vidrio: "Vidrio",
+  metal: "Metal",
+  carton: "Cartón",
+  papel: "Papel",
+};
+
+const RISK_LABELS = {
+  bajo: "Bajo",
+  medio: "Medio",
+  alto: "Alto",
+};
+
 const PostCard = ({
   post,
   isAdmin,
@@ -39,8 +54,14 @@ const PostCard = ({
       ? `${description.substring(0, 80)}...`
       : description;
 
+  const imageSrc = post.picture || post.image_url;
+  const wasteLabel =
+    WASTE_LABELS[post.wasteType] || post.wasteType;
+  const riskLabel =
+    RISK_LABELS[post.riskLevel] || post.riskLevel;
+
   return (
-    <article className="post-card">
+    <article className={`post-card${post.fromMap ? " post-card--map" : ""}`}>
 
       {/* ==========================================
           POST IMAGE
@@ -59,10 +80,19 @@ const PostCard = ({
       >
 
         <img
-          src={post.image_url}
+          src={imageSrc}
           alt={post.title}
           className="post-image"
         />
+
+        {post.fromMap && post.analysis?.valid && (
+          <div
+            className="post-risk-badge"
+            style={{ "--risk-hex": post.analysis.hex }}
+          >
+            {post.analysis.nivel}
+          </div>
+        )}
 
         {/* ======================================
             VERIFIED BADGE
@@ -93,8 +123,39 @@ const PostCard = ({
 
       <div className="post-info">
 
+        {post.fromMap && post.name && (
+          <div className="post-reporter">
+            <img
+              src={imageSrc}
+              alt=""
+              className="post-reporter-avatar"
+            />
+            <span>{post.name}</span>
+          </div>
+        )}
+
         {/* Título de la publicación */}
         <h3>{post.title}</h3>
+
+        {post.fromMap && (
+          <ul className="post-map-meta">
+            {wasteLabel && (
+              <li>
+                <strong>Tipo:</strong> {wasteLabel}
+              </li>
+            )}
+            {post.amount !== undefined && post.amount !== "" && (
+              <li>
+                <strong>Cantidad:</strong> {post.amount}
+              </li>
+            )}
+            {riskLabel && (
+              <li>
+                <strong>Riesgo:</strong> {riskLabel}
+              </li>
+            )}
+          </ul>
+        )}
 
         {/* ==============================
             DESCRIPCIÓN RESUMIDA
@@ -122,7 +183,7 @@ const PostCard = ({
           directamente desde la tarjeta.
       */}
 
-      {isAdmin && (
+      {isAdmin && !post.fromMap && (
 
         <div className="post-admin-controls">
 
