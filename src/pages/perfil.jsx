@@ -12,14 +12,12 @@ Su responsabilidad es:
 3. Controlar si el usuario tiene permisos de administrador.
 4. Pasar la información necesaria a los componentes hijos.
 
-Las publicaciones creadas en el mapa (myMapComponent) se
-sincronizan en tiempo real desde Firebase Firestore
-(colección "reportes"). Los posts manuales del admin
-permanecen en estado local.
+Actualmente utiliza datos temporales (mock data),
+pero en futuras versiones estos datos serán obtenidos
+desde Supabase.
 */
 
-import { useEffect, useMemo, useState } from "react";
-import { useFirebaseReportes } from "../hooks/useFirebaseReportes";
+import { useState, useRef, useEffect } from "react";
 
 // Componentes de la página de perfil
 import PfStats from "../components/perfil-components/perfil-stats";
@@ -28,21 +26,9 @@ import PostsGrid from "../components/perfil-components/postsGrid";
 import AdminLogin from "../components/perfil-components/adminLogin";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import '../styles/perfil.css';
+import '../assets/styles/perfil/perfil.css';
 
 const Perfil = () => {
-
-  // Permite scroll vertical en esta ruta (p. ej. tras visitar el mapa con overflow bloqueado)
-  useEffect(() => {
-    const prevBody = document.body.style.overflow;
-    const prevHtml = document.documentElement.style.overflowY;
-    document.body.style.overflow = "auto";
-    document.documentElement.style.overflowY = "auto";
-    return () => {
-      document.body.style.overflow = prevBody;
-      document.documentElement.style.overflowY = prevHtml;
-    };
-  }, []);
 
   /*
   ====================================================
@@ -56,11 +42,11 @@ const Perfil = () => {
   actualizaciones desde una base de datos.
   */
 
-  const [perfil, setPerfil] = useState({
+  const [Perfil, SetPerfil, SetPf] = useState({
     name: "Alan Brito",
 
     aboutMe:
-      "Hola! Estoy usando Cora, patrocinado por Armonia.",
+      "Welcome to my profile. Here you'll find projects, achievements, and verified posts.",
 
     profileImage:
       "https://placehold.co/250x250/png",
@@ -86,21 +72,22 @@ const Perfil = () => {
   fuente de datos.
   */
 
-  const { mapPosts, loading: mapPostsLoading } = useFirebaseReportes();
-
-  // Publicaciones creadas manualmente por el admin (no vienen del mapa)
-  const [localPosts, setLocalPosts] = useState([]);
-
-  const posts = useMemo(
-    () => [...mapPosts, ...localPosts],
-    [mapPosts, localPosts],
-  );
-
-  const setPosts = (updater) => {
-    setLocalPosts((prev) =>
-      typeof updater === "function" ? updater(prev) : updater,
-    );
-  };
+  const [posts, setPosts] = useState([
+    {
+      id: 1,
+      title: "My First Post",
+      description: "Example description",
+      image_url: "https://placehold.co/600x600/png",
+      verified: true,
+    },
+    {
+      id: 2,
+      title: "Another Post",
+      description: "Another example description",
+      image_url: "https://placehold.co/600x600/png",
+      verified: false,
+    },
+  ]);
 
   /*
   ====================================================
@@ -142,10 +129,7 @@ const Perfil = () => {
   const totalPosts = posts.length;
 
   return (
-    <div className="profile-page-wrapper page-transition">
-      <Header />
-
-      <main className="profile-page">
+    <main className="perfil-page">
 
       {/* ------------------------------------------------
           LOGIN DE ADMINISTRADOR
@@ -171,7 +155,7 @@ const Perfil = () => {
 
           Si isAdmin es true, permite edición.
       */}
-      <PfStats
+      <pfStats
         perfil={perfil}
         setPerfil={setPerfil}
         isAdmin={isAdmin}
@@ -184,16 +168,16 @@ const Perfil = () => {
           Muestra información calculada automáticamente
           a partir de las publicaciones.
       */}
-      <section className="profile-stats">
-
-        <div className="stat-card connections">
-          <h2>{verifiedCount}</h2>
-          <p>Verificados</p>
-        </div>
+      <section className="stats">
 
         <div className="stat-card verified">
+          <h2>{verifiedCount}</h2>
+          <p>Verified</p>
+        </div>
+
+        <div className="stat-card connections">
           <h2>{totalPosts}</h2>
-          <p>Posts</p>
+          <p>Connections</p>
         </div>
 
       </section>
@@ -207,7 +191,7 @@ const Perfil = () => {
           Si el administrador está autenticado,
           puede modificar el contenido.
       */}
-      <Abtme
+      <AboutMe
         perfil={perfil}
         setPerfil={setPerfil}
         isAdmin={isAdmin}
@@ -231,13 +215,9 @@ const Perfil = () => {
         posts={posts}
         setPosts={setPosts}
         isAdmin={isAdmin}
-        mapPostsLoading={mapPostsLoading}
       />
 
-      </main>
-
-      <Footer />
-    </div>
+    </main>
   );
 };
 
