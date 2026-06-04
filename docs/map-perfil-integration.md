@@ -21,7 +21,8 @@
 1. Banner gris con avatar centrado y stats abajo-derecha.
 2. Nombre subrayado bajo el banner.
 3. Sección «Sobre Mí» plana.
-4. Grid «Publicados» estilo Instagram (3 columnas).
+4. Grid «Publicados» responsive (`auto-fill`, ancho completo).
+5. Layout ancho completo: sin `max-width` móvil; banner y contenido escalan con `clamp` / `vw`.
 
 ## Admin
 

@@ -28,9 +28,22 @@ body:has(.profile-page-wrapper) {
 .profile-page-wrapper .profile-page {
   flex: 1 0 auto;
   width: 100%;
-  max-width: 720px;
-  margin: 0 auto;
-  padding: 0 1rem 3rem;
+  max-width: none;
+  margin: 0;
+  padding: 0 0 3rem;
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-hero-zone {
+  position: relative;
+  width: 100%;
+}
+
+.profile-page-body {
+  width: 100%;
+  padding-inline: clamp(1rem, 4vw, 3.5rem);
+  padding-top: 0.5rem;
 }
 
 .profile-page,
@@ -53,9 +66,13 @@ body:has(.profile-page-wrapper) {
 ========================= */
 
 .admin-controls {
+  position: absolute;
+  top: clamp(0.5rem, 1.5vw, 1rem);
+  right: clamp(1rem, 4vw, 3rem);
+  z-index: 10;
   display: flex;
   justify-content: flex-end;
-  padding: 0.75rem 0 0.25rem;
+  padding: 0;
 }
 
 .admin-login-btn,
@@ -78,14 +95,16 @@ body:has(.profile-page-wrapper) {
 
 .profile-banner {
   position: relative;
+  width: 100%;
   background: #a8a8a8;
   border-radius: 0;
-  min-height: 200px;
+  min-height: clamp(180px, 24vh, 320px);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 -1rem;
-  padding: 2.5rem 1rem 3.5rem;
+  margin: 0;
+  padding: clamp(2rem, 5vw, 4rem) clamp(1rem, 4vw, 3rem)
+    clamp(3.25rem, 7vw, 5rem);
 }
 
 .profile-avatar-wrap {
@@ -97,11 +116,11 @@ body:has(.profile-page-wrapper) {
 }
 
 .profile-image {
-  width: 140px;
-  height: 140px;
+  width: clamp(110px, 18vw, 200px);
+  height: clamp(110px, 18vw, 200px);
   border-radius: 50%;
   object-fit: cover;
-  border: 5px solid #ecece4;
+  border: clamp(4px, 0.6vw, 6px) solid #ecece4;
   background: #ddd;
 }
 
@@ -115,16 +134,16 @@ body:has(.profile-page-wrapper) {
 
 .profile-stats-float {
   position: absolute;
-  right: 1rem;
-  bottom: 0.75rem;
+  right: clamp(1rem, 4vw, 3rem);
+  bottom: clamp(0.5rem, 2vw, 1.25rem);
   display: flex;
-  gap: 0.35rem;
+  gap: clamp(0.35rem, 1vw, 0.75rem);
   z-index: 3;
 }
 
 .stat-card {
-  width: 72px;
-  height: 72px;
+  width: clamp(58px, 10vw, 100px);
+  height: clamp(58px, 10vw, 100px);
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -134,14 +153,14 @@ body:has(.profile-page-wrapper) {
 }
 
 .stat-card h2 {
-  font-size: 1.65rem;
+  font-size: clamp(1.25rem, 3vw, 2.25rem);
   margin: 0;
   line-height: 1;
   font-weight: 800;
 }
 
 .stat-card p {
-  font-size: 0.58rem;
+  font-size: clamp(0.5rem, 1.2vw, 0.75rem);
   margin: 0.15rem 0 0;
   text-align: center;
   font-weight: 600;
@@ -163,12 +182,12 @@ body:has(.profile-page-wrapper) {
 
 .profile-name-block {
   text-align: center;
-  margin-top: 1rem;
-  padding: 0 0.5rem;
+  margin-top: clamp(0.75rem, 2vw, 1.5rem);
+  padding: 0 clamp(1rem, 4vw, 3rem);
 }
 
 .profile-display-name {
-  font-size: clamp(2rem, 8vw, 3.25rem);
+  font-size: clamp(1.75rem, 5vw, 3.5rem);
   font-weight: 800;
   color: #00575b;
   margin: 0;
@@ -206,8 +225,9 @@ body:has(.profile-page-wrapper) {
 ========================= */
 
 .about-section {
-  margin-bottom: 2rem;
-  padding: 0 0.25rem;
+  margin-bottom: clamp(1.5rem, 3vw, 2.5rem);
+  padding: 0;
+  width: 100%;
 }
 
 .section-header {
@@ -220,7 +240,7 @@ body:has(.profile-page-wrapper) {
 .section-title-underline,
 .posts-header h2 {
   color: #00575b;
-  font-size: 1.75rem;
+  font-size: clamp(1.35rem, 3vw, 2.25rem);
   font-weight: 700;
   margin: 0;
   text-decoration: underline;
@@ -230,10 +250,10 @@ body:has(.profile-page-wrapper) {
 
 .about-text {
   color: #00575b;
-  font-size: 0.95rem;
+  font-size: clamp(0.9rem, 1.5vw, 1.1rem);
   line-height: 1.55;
   margin: 0;
-  max-width: 100%;
+  max-width: 72rem;
 }
 
 .about-editor textarea {
@@ -309,6 +329,7 @@ body:has(.profile-page-wrapper) {
 
 .posts-section {
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 .posts-header {
@@ -324,8 +345,12 @@ body:has(.profile-page-wrapper) {
 
 .posts-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 3px;
+  width: 100%;
+  grid-template-columns: repeat(
+    auto-fill,
+    minmax(clamp(100px, 14vw, 220px), 1fr)
+  );
+  gap: clamp(3px, 0.5vw, 8px);
 }
 
 .post-card {
@@ -419,10 +444,11 @@ body:has(.profile-page-wrapper) {
 
 .empty-posts {
   background: rgba(255, 255, 255, 0.5);
-  padding: 2rem;
+  padding: clamp(1.5rem, 4vw, 3rem);
   text-align: center;
   border-radius: 8px;
   color: #00575b;
+  width: 100%;
 }
 
 /* =========================
@@ -580,41 +606,54 @@ body:has(.profile-page-wrapper) {
 }
 
 /* =========================
-   MOBILE
+   RESPONSIVE
 ========================= */
 
-@media (max-width: 768px) {
-  .profile-banner {
-    min-height: 170px;
-    padding-bottom: 3rem;
+@media (max-width: 480px) {
+  .admin-controls {
+    position: static;
+    justify-content: flex-end;
+    padding: 0.5rem clamp(1rem, 4vw, 3rem) 0;
   }
 
-  .profile-image {
-    width: 110px;
-    height: 110px;
-  }
-
-  .stat-card {
-    width: 58px;
-    height: 58px;
-  }
-
-  .stat-card h2 {
-    font-size: 1.25rem;
+  .profile-hero-zone .admin-controls {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.75rem;
   }
 
   .posts-grid {
-    gap: 2px;
+    grid-template-columns: repeat(3, 1fr);
   }
 
-  .modal-actions,
-  .modal-buttons {
-    flex-direction: column;
+  .post-grid-caption {
+    display: none;
   }
 }
 
-@media (min-width: 900px) {
-  .profile-page-wrapper .profile-page {
-    max-width: 800px;
+@media (min-width: 768px) {
+  .about-text {
+    font-size: clamp(0.95rem, 1.1vw, 1.1rem);
+  }
+
+  .modal-map-details {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1200px) {
+  .profile-page-body {
+    padding-inline: clamp(2rem, 6vw, 5rem);
+  }
+
+  .post-modal {
+    max-width: 640px;
+  }
+}
+
+@media (max-width: 768px) {
+  .modal-actions,
+  .modal-buttons {
+    flex-direction: column;
   }
 }
