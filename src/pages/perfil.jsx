@@ -46,7 +46,7 @@ const Perfil = () => {
     name: "Alan Brito",
 
     aboutMe:
-      "Welcome to my profile. Here you'll find projects, achievements, and verified posts.",
+      "Hola! Estoy usando Cora, patrocinado por Armonia.",
 
     profileImage:
       "https://placehold.co/250x250/png",
@@ -75,15 +75,15 @@ const Perfil = () => {
   const [posts, setPosts] = useState([
     {
       id: 1,
-      title: "My First Post",
-      description: "Example description",
+      title: "Primer Post",
+      description: "Mi primer post en cora",
       image_url: "https://placehold.co/600x600/png",
       verified: true,
     },
     {
       id: 2,
-      title: "Another Post",
-      description: "Another example description",
+      title: "Segundo Post",
+      description: "Mi segundo post en cora",
       image_url: "https://placehold.co/600x600/png",
       verified: false,
     },
