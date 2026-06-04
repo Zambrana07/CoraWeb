@@ -17,7 +17,7 @@ pero en futuras versiones estos datos serán obtenidos
 desde Supabase.
 */
 
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 
 // Componentes de la página de perfil
 import PfStats from "../components/perfil-components/perfil-stats";
@@ -26,7 +26,7 @@ import PostsGrid from "../components/perfil-components/postsGrid";
 import AdminLogin from "../components/perfil-components/adminLogin";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import '../assets/styles/perfil/perfil.css';
+import '../styles/perfil.css';
 
 const Perfil = () => {
 
@@ -42,7 +42,7 @@ const Perfil = () => {
   actualizaciones desde una base de datos.
   */
 
-  const [Perfil, SetPerfil, SetPf] = useState({
+  const [perfil, setPerfil] = useState({
     name: "Alan Brito",
 
     aboutMe:
@@ -129,7 +129,10 @@ const Perfil = () => {
   const totalPosts = posts.length;
 
   return (
-    <main className="perfil-page">
+    <div className="profile-page-wrapper page-transition">
+      <Header />
+
+      <main className="profile-page">
 
       {/* ------------------------------------------------
           LOGIN DE ADMINISTRADOR
@@ -155,7 +158,7 @@ const Perfil = () => {
 
           Si isAdmin es true, permite edición.
       */}
-      <pfStats
+      <PfStats
         perfil={perfil}
         setPerfil={setPerfil}
         isAdmin={isAdmin}
@@ -168,16 +171,16 @@ const Perfil = () => {
           Muestra información calculada automáticamente
           a partir de las publicaciones.
       */}
-      <section className="stats">
-
-        <div className="stat-card verified">
-          <h2>{verifiedCount}</h2>
-          <p>Verified</p>
-        </div>
+      <section className="profile-stats">
 
         <div className="stat-card connections">
+          <h2>{verifiedCount}</h2>
+          <p>Verificados</p>
+        </div>
+
+        <div className="stat-card verified">
           <h2>{totalPosts}</h2>
-          <p>Connections</p>
+          <p>Posts</p>
         </div>
 
       </section>
@@ -191,7 +194,7 @@ const Perfil = () => {
           Si el administrador está autenticado,
           puede modificar el contenido.
       */}
-      <AboutMe
+      <Abtme
         perfil={perfil}
         setPerfil={setPerfil}
         isAdmin={isAdmin}
@@ -217,7 +220,10 @@ const Perfil = () => {
         isAdmin={isAdmin}
       />
 
-    </main>
+      </main>
+
+      <Footer />
+    </div>
   );
 };
 
