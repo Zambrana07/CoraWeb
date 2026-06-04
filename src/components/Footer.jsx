@@ -1,26 +1,43 @@
-import React from 'react';
-import '../assets/styles/Footer.css'; 
+import { Link } from 'react-router-dom';
+import '../assets/styles/Footer.css';
+
+import localizacion from '../icons/localizacion.svg';
+import buscar from '../icons/buscar.svg';
+import pfp from '../icons/pfp.svg';
+import info from '../icons/info.svg';
+
 
 const Footer = () => {
   return (
     <footer className="footer" data-tour="footer">
       <nav className="footer-content">
-        <a className="footer-item" href="/">
-          <span className="footer-icon">H</span>
+        <Link className="footer-item" to="/">
+          <span className="footer-icon">
+            <img src={localizacion} alt="Home" />
+          </span>
           <span className="footer-label">Home</span>
-        </a>
-        <a className="footer-item" href="/archivero">
-          <span className="footer-icon">A</span>
+        </Link>
+
+        <Link className="footer-item" to="/archivero">
+          <span className="footer-icon">
+            <img src={buscar} alt="Archivero" />
+          </span>
           <span className="footer-label">Archivero</span>
-        </a>
+        </Link>
+
         <a className="footer-item" href="#">
-          <span className="footer-icon">W</span>
+          <span className="footer-icon">
+            <img src={info} alt="Web-Informativa" />
+          </span>
           <span className="footer-label">Web informativa</span>
         </a>
-        <a className="footer-item" href="/perfil">
-          <span className="footer-icon">P</span>
+
+        <Link className="footer-item" to="/perfil">
+          <span className="footer-icon">
+            <img src={pfp} alt="Perfil" />
+          </span>
           <span className="footer-label">Perfil</span>
-        </a>
+        </Link>
       </nav>
     </footer>
   );

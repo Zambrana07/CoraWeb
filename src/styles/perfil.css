@@ -1,0 +1,611 @@
+/* =========================
+   PAGE LAYOUT
+========================= */
+
+.profile-page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.profile-page-wrapper .profile-page {
+  flex: 1;
+}
+
+.profile-page,
+.profile-page * {
+  box-sizing: border-box;
+}
+
+.profile-page {
+  width: 100%;
+  min-height: 100vh;
+
+  background: #ecece4;
+
+  padding: 1.5rem;
+}
+
+button {
+  cursor: pointer;
+  border: none;
+  transition: 0.2s ease;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+/* =========================
+   ADMIN CONTROLS
+========================= */
+
+.admin-controls {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 2rem;
+}
+
+.admin-login-btn,
+.admin-logout-btn {
+  background: #006d77;
+  color: white;
+  padding: 0.8rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+
+/* =========================
+   PROFILE HEADER
+========================= */
+
+.profile-header {
+  display: flex;
+  align-items: flex-end;
+  gap: 1.5rem;
+
+  margin-bottom: 1.5rem;
+}
+
+.profile-image-container {
+  position: relative;
+}
+
+.profile-image {
+  width: 170px;
+  height: 170px;
+
+  border-radius: 50%;
+  object-fit: cover;
+
+  border: 6px solid #f5f5f0;
+
+  box-shadow: none;
+}
+
+.profile-name-section {
+  flex: 1;
+}
+
+.profile-name-section h1 {
+  font-size: 3.5rem;
+  font-weight: 800;
+
+  color: #00575b;
+
+  text-decoration: none;
+
+  margin: 0;
+}
+.profile-image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.profile-image {
+  width: 180px;
+  height: 180px;
+  border-radius: 50%;
+  object-fit: cover;
+
+  border: 5px solid #006d77;
+
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+.change-image-btn {
+  background: #006d77;
+  color: white;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+}
+
+.profile-name-section {
+  flex: 1;
+}
+
+.profile-name-section h1 {
+  font-size: 3rem;
+  color: #004e57;
+  margin-bottom: 1rem;
+}
+
+.edit-name-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.edit-name-container input {
+  padding: 0.75rem;
+  min-width: 300px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+/* =========================
+   STATS
+========================= */
+
+.profile-stats {
+  display: flex;
+  gap: 0;
+
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  width: 95px;
+  height: 95px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 25px 25px 0 0;
+
+  box-shadow: none;
+
+  padding: 0;
+}
+
+.stat-card h2 {
+  font-size: 2rem;
+  margin: 0;
+}
+
+.stat-card p {
+  font-size: 0.7rem;
+  margin: 0;
+  text-align: center;
+}
+
+.verified {
+  background: #00a4a8;
+  color: white;
+}
+
+.connections {
+  background: #d8d59b;
+  color: #00575b;
+}
+
+/* =========================
+   ABOUT ME
+========================= */
+
+.about-section {
+  background: transparent;
+
+  padding: 0;
+
+  margin-bottom: 2rem;
+
+  box-shadow: none;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 1rem;
+}
+
+.section-header h2 {
+  color: #00575b;
+
+  font-size: 2.3rem;
+  font-weight: 700;
+}
+
+.about-text {
+  color: #00575b;
+
+  font-size: 1rem;
+
+  text-decoration: none;
+
+  max-width: 700px;
+}
+
+.about-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.about-editor textarea {
+  min-height: 150px;
+
+  padding: 1rem;
+
+  resize: vertical;
+
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.editor-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.character-counter {
+  text-align: right;
+  color: gray;
+  font-size: 0.9rem;
+}
+
+/* =========================
+   BUTTONS
+========================= */
+
+.edit-btn,
+.save-btn,
+.cancel-btn,
+.verify-btn,
+.delete-btn {
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+}
+.edit-btn,
+.save-btn,
+.cancel-btn,
+.verify-btn,
+.delete-btn,
+.create-post-btn,
+.change-image-btn,
+.admin-login-btn,
+.admin-logout-btn {
+  border-radius: 6px;
+
+  box-shadow: none;
+}
+.edit-btn {
+  background: #006d77;
+  color: white;
+}
+
+.save-btn {
+  background: #2a9d8f;
+  color: white;
+}
+
+.cancel-btn {
+  background: #d9d9d9;
+}
+
+.delete-btn {
+  background: #d62828;
+  color: white;
+}
+
+.verify-btn {
+  background: #ffb703;
+}
+
+/* =========================
+   POSTS SECTION
+========================= */
+
+.posts-section {
+  margin-bottom: 3rem;
+}
+
+.posts-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  margin-bottom: 1.5rem;
+}
+
+.posts-header h2 {
+  color: #00575b;
+
+  font-size: 2.3rem;
+  font-weight: 700;
+}
+
+.create-post-btn {
+  background: #006d77;
+  color: white;
+
+  padding: 0.8rem 1.2rem;
+
+  border-radius: 8px;
+}
+
+/* =========================
+   POSTS GRID
+========================= */
+
+.posts-grid {
+  display: grid;
+
+  grid-template-columns:
+    repeat(auto-fill, minmax(180px, 1fr));
+
+  gap: 1rem;
+}
+
+.post-card {
+  background: transparent;
+
+  border: 2px solid #b9d1cf;
+
+  border-radius: 10px;
+
+  overflow: hidden;
+
+  box-shadow: none;
+}
+
+.post-image-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.post-image {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+
+  object-fit: cover;
+}
+.post-verified-badge {
+  position: absolute;
+
+  top: 10px;
+  right: 10px;
+
+  background: #2a9d8f;
+  color: white;
+
+  padding: 0.4rem 0.8rem;
+
+  border-radius: 999px;
+
+  font-size: 0.85rem;
+}
+
+.post-info {
+  padding: 0.6rem;
+}
+
+.post-info h3 {
+  font-size: 0.9rem;
+  color: #00575b;
+}
+
+.post-info p {
+  font-size: 0.8rem;
+  color: #555;
+}
+
+.post-admin-controls {
+  display: flex;
+  justify-content: center;
+
+  gap: 0.4rem;
+
+  padding: 0.4rem;
+
+  background: #dcdcdc;
+}
+
+/* =========================
+   EMPTY POSTS
+========================= */
+
+.empty-posts {
+  background: white;
+  padding: 3rem;
+
+  text-align: center;
+
+  border-radius: 12px;
+}
+
+/* =========================
+   MODAL
+========================= */
+
+.modal-overlay {
+  position: fixed;
+
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 100%;
+
+  background: rgba(0,0,0,0.6);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  z-index: 1000;
+}
+
+.post-modal {
+  background: white;
+
+  width: 90%;
+  max-width: 1000px;
+
+  max-height: 90vh;
+
+  overflow-y: auto;
+
+  border-radius: 15px;
+
+  position: relative;
+
+  padding: 2rem;
+}
+
+.close-modal-btn {
+  position: absolute;
+
+  top: 15px;
+  right: 15px;
+
+  background: transparent;
+
+  font-size: 2rem;
+}
+
+.modal-image-container {
+  margin-bottom: 1.5rem;
+}
+
+.modal-image {
+  width: 100%;
+  max-height: 500px;
+
+  object-fit: cover;
+
+  border-radius: 12px;
+}
+
+.image-placeholder {
+  height: 300px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  background: #f2f2f2;
+
+  border-radius: 12px;
+}
+
+.modal-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-content input,
+.modal-content textarea {
+  padding: 1rem;
+
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.modal-content textarea {
+  min-height: 150px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.verified-badge {
+  display: inline-block;
+
+  margin-top: 1rem;
+
+  background: #2a9d8f;
+  color: white;
+
+  padding: 0.5rem 1rem;
+
+  border-radius: 999px;
+}
+
+/* =========================
+   ADMIN LOGIN MODAL
+========================= */
+
+.admin-modal {
+  background: white;
+
+  width: 400px;
+
+  padding: 2rem;
+
+  border-radius: 12px;
+}
+
+.admin-modal h2 {
+  margin-bottom: 1rem;
+}
+
+.admin-modal input {
+  width: 100%;
+
+  padding: 1rem;
+
+  margin-bottom: 1rem;
+
+  border: 1px solid #ccc;
+  border-radius: 8px;
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.error-message {
+  color: red;
+  margin-bottom: 1rem;
+}
+
+/* =========================
+   MOBILE
+========================= */
+
+@media (max-width: 768px) {
+  .profile-header {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-stats {
+    flex-direction: column;
+  }
+
+  .posts-header {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+  }
+}

@@ -6,10 +6,17 @@ import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap, useMapEvents }
 
 // Importaciones FIREBASE
 import { db } from '../firebase/firebaseConfig'; 
-import { collection, addDoc, serverTimestamp, query, onSnapshot } from "firebase/firestore"; 
+import { collection, addDoc, serverTimestamp, query, onSnapshot, deleteDoc, doc } from "firebase/firestore";
+import {
+    getCurrentUser,
+    getReporterName,
+    setReporterName,
+    isOwnReport,
+} from "./ProtectedRoute.jsx"; 
 
 // AgenteCora: analisis de riesgo del formulario
 import { analyzeReport } from '../agent/agenteCora';
+import CoraFeedbackModal from './CoraFeedbackModal.jsx';
 import '../assets/styles/AgenteCora.css';
 
 // Rectangulo de calificacion que AgenteCora coloca junto al punto
@@ -66,8 +73,12 @@ function MyMapComponent() {
     const [userPosition, setUserPosition] = useState(null);
     const [customMarkers, setCustomMarkers] = useState([]); 
     const [isAddingMode, setIsAddingMode] = useState(false);
-    const [cargando, setCargando] = useState(false); 
+    const [cargando, setCargando] = useState(false);
+    const [deletingId, setDeletingId] = useState(null);
+    const [feedback, setFeedback] = useState(null);
     const regionOptions = ["Colegio CTP CIT", "Soda armonia"];
+
+    const closeFeedback = () => setFeedback(null);
     
     const [tempMarker, setTempMarker] = useState(null); 
     const [formData, setFormData] = useState({ 
@@ -92,9 +103,10 @@ function MyMapComponent() {
                 const data = doc.data();
                 if (data.latitud && data.longitud) {
                     puntosFirebase.push({
-                        id: doc.id, 
+                        id: doc.id,
                         position: [data.latitud, data.longitud],
                         name: data.reportado_por || 'Anónimo',
+                        creadoPor: data.creado_por || '',
                         region: data.region,
                         wasteType: data.tipo_residuo,
                         amount: data.cantidad,
@@ -126,8 +138,8 @@ function MyMapComponent() {
     };
 
     const handleMapClick = (latlng) => {
-        setFormData({ 
-            name: '', 
+        setFormData({
+            name: getReporterName() || getCurrentUser() || '',
             region: regionOptions[0],
             wasteType: 'organico',
             amount: '',
@@ -146,16 +158,27 @@ function MyMapComponent() {
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         if (!formData.name || !formData.amount) {
-            alert("Por favor completa los campos obligatorios antes de guardar.");
+            setFeedback({
+                variant: "warning",
+                title: "Campos incompletos",
+                message:
+                    "Por favor completa tu nombre y la cantidad de residuos antes de guardar el punto.",
+                confirmLabel: "Entendido",
+            });
             return;
         }
 
         setCargando(true);
 
         try {
+            const reporterName = formData.name.trim();
+            const creator = getCurrentUser();
+            setReporterName(reporterName);
+
             const reportesRef = collection(db, "reportes");
             await addDoc(reportesRef, {
-                reportado_por: formData.name,
+                reportado_por: reporterName,
+                creado_por: creator,
                 region: formData.region,
                 tipo_residuo: formData.wasteType,
                 cantidad: Number(formData.amount),
@@ -168,20 +191,107 @@ function MyMapComponent() {
                 fecha_creacion: serverTimestamp()
             });
 
-            alert("¡Reporte guardado exitosamente en Firebase!");
-            setTempMarker(null); 
+            setTempMarker(null);
+            setFeedback({
+                variant: "success",
+                title: "Punto registrado",
+                message: (
+                    <>
+                        Tu reporte en <strong>{formData.region}</strong> fue guardado
+                        correctamente. Ya aparece en el mapa y en el Archivero.
+                    </>
+                ),
+                confirmLabel: "Excelente",
+            });
 
         } catch (error) {
             console.error("Error al guardar en Firebase:", error);
-            alert("Hubo un error al conectar con Firebase.");
+            setFeedback({
+                variant: "error",
+                title: "No se pudo guardar",
+                message:
+                    "Hubo un problema al conectar con la base de datos. Revisa tu conexion e intenta de nuevo.",
+                confirmLabel: "Entendido",
+            });
         } finally {
             setCargando(false);
         }
     };
 
+    const executeDelete = async (marker) => {
+        setDeletingId(marker.id);
+        setFeedback((prev) => (prev ? { ...prev, loading: true } : prev));
+
+        try {
+            await deleteDoc(doc(db, "reportes", marker.id));
+            setFeedback({
+                variant: "success",
+                title: "Punto eliminado",
+                message: (
+                    <>
+                        El reporte de <strong>{marker.name}</strong> en{" "}
+                        <strong>{marker.region}</strong> fue retirado del mapa.
+                    </>
+                ),
+                confirmLabel: "Listo",
+            });
+        } catch (error) {
+            console.error("Error al eliminar punto:", error);
+            setFeedback({
+                variant: "error",
+                title: "No se pudo eliminar",
+                message:
+                    "Ocurrio un error al borrar el punto. Intenta de nuevo en unos segundos.",
+                confirmLabel: "Entendido",
+            });
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
+    const handleDeleteMarker = (marker) => {
+        if (!isOwnReport(marker)) {
+            setFeedback({
+                variant: "warning",
+                title: "Accion no permitida",
+                message: "Solo puedes eliminar puntos que tu hayas creado en el mapa.",
+                confirmLabel: "Entendido",
+            });
+            return;
+        }
+
+        setFeedback({
+            variant: "confirm",
+            title: "Eliminar punto",
+            message: (
+                <>
+                    ¿Eliminar el reporte de <strong>{marker.name}</strong> en{" "}
+                    <strong>{marker.region}</strong>? Esta accion no se puede deshacer.
+                </>
+            ),
+            confirmLabel: "Si, eliminar",
+            cancelLabel: "Cancelar",
+            onConfirm: () => executeDelete(marker),
+        });
+    };
+
+    const misPuntos = customMarkers.filter(isOwnReport);
+
     return (
         <div style={{ position: 'relative', height: '100vh', width: '100vw' }}>
-            
+
+            <CoraFeedbackModal
+                open={!!feedback}
+                variant={feedback?.variant}
+                title={feedback?.title}
+                message={feedback?.message}
+                confirmLabel={feedback?.confirmLabel}
+                cancelLabel={feedback?.cancelLabel}
+                onConfirm={feedback?.onConfirm}
+                onClose={closeFeedback}
+                loading={feedback?.loading}
+            />
+
             {/* Cuadro Flotante - UI */}
             <div style={{
                 position: 'fixed', 
@@ -213,6 +323,48 @@ function MyMapComponent() {
                         </button>
                     )}
                 </div>
+
+                {misPuntos.length > 0 && (
+                    <div style={{ borderTop: '1px solid #e0e0e0', paddingTop: '10px', marginTop: '4px' }}>
+                        <p style={{ margin: '0 0 8px', fontSize: '0.85rem', fontWeight: 'bold', color: '#003C43' }}>
+                            Mis puntos ({misPuntos.length})
+                        </p>
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', maxHeight: '160px', overflowY: 'auto' }}>
+                            {misPuntos.map((marker) => (
+                                <div
+                                    key={`mine-${marker.id}`}
+                                    style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'space-between',
+                                        gap: '8px',
+                                        fontSize: '0.8rem',
+                                    }}
+                                >
+                                    <span style={{ flex: 1, lineHeight: 1.3 }}>
+                                        {marker.region} &middot; {marker.wasteType}
+                                    </span>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDeleteMarker(marker)}
+                                        disabled={deletingId === marker.id}
+                                        style={{
+                                            ...btnStyle(deletingId === marker.id ? '#ccc' : '#a1303c'),
+                                            padding: '6px 10px',
+                                            fontSize: '0.75rem',
+                                            flexShrink: 0,
+                                        }}
+                                    >
+                                        {deletingId === marker.id ? '...' : 'Eliminar'}
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+                        <p style={{ margin: '8px 0 0', fontSize: '0.7rem', color: '#666' }}>
+                            Tambien puedes eliminar desde el popup del marcador en el mapa.
+                        </p>
+                    </div>
+                )}
             </div>
 
             <MapContainer center={[9.9772, -84.1833]} zoom={13} style={{ height: '100%', width: '100%' }}>
@@ -355,6 +507,20 @@ function MyMapComponent() {
                                     </>
                                 )}
                                 <small style={{ color: '#888' }}>{marker.timestamp}</small>
+                                {isOwnReport(marker) && (
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDeleteMarker(marker)}
+                                        disabled={deletingId === marker.id}
+                                        style={{
+                                            ...btnStyle(deletingId === marker.id ? '#ccc' : '#a1303c'),
+                                            marginTop: '10px',
+                                            width: '100%',
+                                        }}
+                                    >
+                                        {deletingId === marker.id ? 'Eliminando...' : 'Eliminar mi punto'}
+                                    </button>
+                                )}
                             </Popup>
                         </Marker>
                     );

@@ -1,0 +1,125 @@
+PERFIL PAGE — BLANK SCREEN FIX DOCUMENTATION
+============================================
+Date: 2026-06-03
+Scope: Only perfil-related files were modified (perfil.jsx, perfil-stats.jsx, abtme.jsx).
+
+SUMMARY
+-------
+The profile route rendered a blank page because React crashed at runtime. The main
+cause was referencing a component named AboutMe that was never imported or defined.
+Additional issues prevented child components from receiving data even after the crash
+was fixed.
+
+
+FILE: src/pages/perfil.jsx
+--------------------------
+
+1. CHANGE: Import renamed from `pfStats` to `PfStats`.
+   FUNCTION: Aligns the import name with the React component export (PascalCase).
+   WHY: React components must use PascalCase in JSX. A mismatched import name made
+        the intended component harder to wire correctly.
+
+2. CHANGE: Removed invalid third value from useState destructuring
+          (`const [perfil, setPerfil, setPf]` → `const [perfil, setPerfil]`).
+   FUNCTION: Correct use of the useState hook API (state + setter only).
+   WHY: useState returns exactly two values. A third variable was always undefined
+        and indicated a misunderstanding that could cause bugs when used later.
+
+3. CHANGE: Replaced `<perfil-stats />` with `<PfStats />` and passed props
+          `perfil`, `setPerfil`, `isAdmin`.
+   FUNCTION: Renders the profile header (photo, name, admin edit controls).
+   WHY: Lowercase hyphenated tags are treated as unknown HTML elements, not React
+        components, so the profile header never mounted.
+
+4. CHANGE: Replaced `<AboutMe />` with `<Abtme />` (matching the actual import).
+   FUNCTION: Renders the "About Me" section.
+   WHY: `AboutMe` was never defined in this file, causing ReferenceError and a full
+        page crash (blank white screen). This was the primary blank-page cause.
+
+5. CHANGE: Updated main wrapper class from `perfil-page` to `profile-page`.
+   FUNCTION: Applies layout styles from perfil.css to the page container.
+   WHY: perfil.css defines `.profile-page`, not `.perfil-page`, so layout rules
+        (width, padding, centering) were not applied.
+
+6. CHANGE: Removed unused imports for Header and Footer.
+   FUNCTION: Keeps the module clean; those components were not rendered in the JSX.
+   WHY: Avoids confusion and unused-import noise; Header/Footer can be re-added
+        when you want them on this page (requires your approval if outside perfil).
+
+
+FILE: src/components/perfil-components/perfil-stats.jsx
+-------------------------------------------------------
+
+7. CHANGE: Props renamed from `Perfil`, `IsAdmin`, `SetPerfil` to `perfil`, `isAdmin`, `setPerfil`.
+   FUNCTION: Receives profile state and admin flag from the parent page.
+   WHY: The parent passed camelCase props; the child expected PascalCase names, so
+        `perfil` was undefined inside the child and would crash on `perfil.name`.
+
+8. CHANGE: Profile image field unified to `profileImage` (was `PfImage` on update/read).
+   FUNCTION: Reads and updates the avatar URL in shared perfil state.
+   WHY: Parent mock state uses `profileImage`; mismatched keys left the image broken
+        after upload and on first render.
+
+9. CHANGE: All internal references updated (`Perfil.name` → `perfil.name`, etc.).
+   FUNCTION: Displays and edits name and image using the same object shape as the parent.
+   WHY: Consistent data contract between perfil.jsx and perfil-stats.jsx.
+
+
+FILE: src/components/perfil-components/abtme.jsx
+----------------------------------------------
+
+10. CHANGE: Component identifier `abtme` → `Abtme`; props `profile`/`setProfile` → `perfil`/`setPerfil`.
+    FUNCTION: Receives and updates About Me text in parent state.
+    WHY: Parent passes `perfil` and `setPerfil`; old prop names left `profile` undefined.
+
+11. CHANGE: About text field unified to `aboutMe` (was `abtme` / `profile.abtme`).
+    FUNCTION: Reads and saves the bio string in shared perfil state.
+    WHY: Parent state in perfil.jsx uses `aboutMe`; mismatched keys showed empty text
+         and saved to the wrong property.
+
+
+VERIFICATION
+------------
+- Run: npm run dev
+- Open: http://localhost:<port>/perfil
+- Expected: Admin login button, profile image/name, stats, About Me, and posts grid.
+- Admin password (temporary): admin123 — enables edit controls.
+
+
+NOT MODIFIED (per your request)
+-------------------------------
+- App.tsx, routing, Supabase, Header.jsx, Footer.jsx, and all non-perfil pages.
+- postsGrid.jsx, postcard.jsx, postModal.jsx, adminLogin.jsx (already compatible).
+
+UPDATE (2026-06-03) — Header & Footer
+-------------------------------------
+
+12. CHANGE: Re-imported Header and Footer; wrapped page in `profile-page-wrapper page-transition`.
+    FUNCTION: Shows site navigation (Header) and bottom nav (Footer) around profile content.
+    WHY: Matches MapaHome and ArchiveroPage layout so users can navigate the app from /perfil.
+
+
+AUDIT FIX (2026-06-03) — Full perfil stack review
+-------------------------------------------------
+
+13. perfil.jsx: CSS import `../styles/perfil.css` (old path was missing; build failed).
+14. perfil.jsx: Stats section class `profile-stats` (matched perfil.css).
+15. perfil.jsx: Removed unused useRef/useEffect imports.
+16. perfil-stats.jsx: Class names aligned with perfil.css (profile-header, profile-image, etc.).
+17. perfil-stats.jsx: useEffect syncs name when parent perfil updates; blob URL cleanup on image change.
+18. abtme.jsx: Class names aligned (about-section, about-text, about-editor); useEffect syncs aboutMe text.
+19. postcard.jsx: Safe handling when description is missing; admin buttons stopPropagation so they do not open view modal.
+20. postModal.jsx: Guard when post is null; reset file state on post change; blob URL cleanup; removed unused isAdmin prop.
+21. postsGrid.jsx: Stopped passing unused isAdmin to PostModal; type="button" on create.
+22. adminLogin.jsx: type="button" on controls; Enter key submits login.
+23. Footer.jsx: React Router Link for /, /archivero, /perfil (SPA navigation); icon paths unchanged.
+24. Header.jsx: Logo path `../assets/img/CoraLogo.png` verified; removed unused React import.
+25. perfil.css: Scoped box-sizing to profile-page (global * reset removed so Header/Footer are not broken).
+26. perfil.css: Added profile-page-wrapper layout and .editor-actions styles.
+
+
+FUTURE NOTES (no code changed)
+------------------------------
+- Connect perfil/posts state to Supabase when ready.
+- Replace hardcoded ADMIN_PASSWORD with real auth.
+- Wire Footer “Web informativa” link when that route exists.

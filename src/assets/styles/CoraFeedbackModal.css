@@ -1,0 +1,184 @@
+.cora-feedback-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  background: rgba(4, 80, 79, 0.42);
+  backdrop-filter: blur(6px);
+  animation: cora-feedback-fade-in 0.25s ease-out;
+}
+
+.cora-feedback-card {
+  width: min(400px, 100%);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 254, 248, 0.98) 0%,
+    rgba(255, 255, 255, 0.96) 100%
+  );
+  border: 1px solid rgba(4, 80, 79, 0.22);
+  border-radius: 24px;
+  box-shadow:
+    0 24px 48px rgba(4, 80, 79, 0.22),
+    0 8px 0 rgba(117, 145, 82, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  padding: 1.75rem 1.5rem 1.5rem;
+  text-align: center;
+  animation: cora-feedback-card-in 0.35s ease-out;
+}
+
+.cora-feedback-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.cora-feedback-logo {
+  width: 64px;
+  height: auto;
+  margin-bottom: 0.75rem;
+  filter: drop-shadow(0 4px 8px rgba(4, 80, 79, 0.15));
+}
+
+.cora-feedback-title {
+  margin: 0;
+  font-size: 1.35rem;
+  color: #04504f;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+
+.cora-feedback-message {
+  margin: 0 0 1.35rem;
+  font-size: 0.95rem;
+  line-height: 1.55;
+  color: #1a3a36;
+}
+
+.cora-feedback-message strong {
+  color: #04504f;
+  font-weight: 700;
+}
+
+.cora-feedback-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+}
+
+.cora-feedback-actions--row {
+  flex-direction: row;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cora-feedback-btn {
+  flex: 1;
+  min-width: 120px;
+  padding: 0.85rem 1.1rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+
+.cora-feedback-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.04);
+}
+
+.cora-feedback-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.cora-feedback-btn--primary {
+  background: linear-gradient(135deg, #04504f 0%, #067a78 55%, #00978d 100%);
+  color: #fff;
+  box-shadow:
+    0 8px 18px rgba(4, 80, 79, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.cora-feedback-btn--success {
+  background: linear-gradient(135deg, #688f35 0%, #759152 55%, #a7bd8a 100%);
+  color: #fff;
+  box-shadow:
+    0 8px 18px rgba(104, 143, 53, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.cora-feedback-btn--danger {
+  background: linear-gradient(135deg, #8b2d36 0%, #a1303c 55%, #c44d58 100%);
+  color: #fff;
+  box-shadow:
+    0 8px 18px rgba(161, 48, 60, 0.28),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
+
+.cora-feedback-btn--ghost {
+  background: rgba(225, 222, 163, 0.45);
+  color: #04504f;
+  border: 1px solid rgba(4, 80, 79, 0.2);
+  box-shadow: none;
+}
+
+.cora-feedback-icon {
+  width: 48px;
+  height: 48px;
+  margin: 0 auto 0.65rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.cora-feedback-icon--success {
+  background: rgba(167, 189, 138, 0.35);
+  color: #688f35;
+}
+
+.cora-feedback-icon--error {
+  background: rgba(196, 77, 88, 0.15);
+  color: #a1303c;
+}
+
+.cora-feedback-icon--warning {
+  background: rgba(0, 151, 141, 0.12);
+  color: #00978d;
+}
+
+.cora-feedback-icon--confirm {
+  background: rgba(161, 48, 60, 0.12);
+  color: #a1303c;
+}
+
+@keyframes cora-feedback-fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes cora-feedback-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.97);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}

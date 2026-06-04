@@ -191,9 +191,23 @@ export function answerQuestion(text) {
     return { text: "Con mucho gusto. Aqui sigo por si surge algo mas sobre reciclaje o la plataforma." };
   }
 
-  if (has(msg, ["como uso", "como se usa", "como funciona", "tutorial", "como utiliz", "guia", "guiame", "ensename", "no se usar", "como navego", "primeros pasos", "recorrido", "muestrame la app"])) {
+  if (
+    has(msg, [
+      "como uso", "como se usa", "como funciona", "tutorial", "como utiliz",
+      "guia", "guiame", "ensename", "no se usar", "como navego",
+      "primeros pasos", "recorrido", "muestrame la app", "muestrame como",
+      "como empiezo", "donde empiezo", "como inicio", "por donde empiezo",
+      "que puedo hacer", "que se puede hacer", "que hago aqui", "que hago en esta",
+      "que hace esta app", "que hace esta pagina", "que ofrece esta", "que tiene esta app",
+      "para que sirve esta app", "para que sirve esta pagina", "para que es esta app",
+      "explicame la app", "explicame esta app", "explicame la pagina", "explicame como",
+      "ayudame a usar", "ayudame con la app", "ensename a usar", "ensename como",
+      "que opciones hay", "que opciones tengo", "que funciones tiene", "que se hace aqui",
+      "como me muevo", "como uso esta", "como utilizo esta", "como funciona esta",
+    ])
+  ) {
     return {
-      text: "Dale, te hago un recorrido rapido y te voy senalando cada parte: como activar tu ubicacion, registrar un punto, llenar el formulario y el menu de abajo. Mira la pantalla, ahi va.",
+      text: "Dale, te hago un recorrido rapido y te voy senalando cada parte: como activar tu ubicacion, registrar un punto, llenar el formulario y el menu de abajo. Mira la pantalla, ahi va. (Puedes pedirmelo tambien diciendo \"como uso la app\", \"que puedo hacer aqui\", \"tutorial\" o \"explicame la app\").",
       action: "tour",
     };
   }

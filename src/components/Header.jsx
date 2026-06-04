@@ -1,4 +1,3 @@
-import React from 'react';
 import '../assets/styles/Header.css';
 import logo from '../assets/img/CoraLogo.png'; 
 
