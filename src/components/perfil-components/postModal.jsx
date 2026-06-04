@@ -1,31 +1,11 @@
-/*
-====================================================
-POST MODAL COMPONENT
-====================================================
-
-Responsabilidad:
-
-Mostrar una publicación dentro de una
-ventana modal.
-
-Puede funcionar en dos modos:
-
-1. View Mode
-   - Solo visualización.
-   - Muestra información del post.
-
-2. Edit/Create Mode
-   - Permite modificar información.
-   - Permite seleccionar imagen.
-   - Permite guardar cambios.
-
-El comportamiento depende de la prop "mode".
-
-Este enfoque evita crear múltiples componentes
-para tareas similares.
-*/
-
 import { useEffect, useState } from "react";
+import {
+  WASTE_LABELS,
+  RISK_LABELS,
+} from "../../lib/reportesMapper";
+
+const WASTE_OPTIONS = Object.keys(WASTE_LABELS);
+const RISK_OPTIONS = Object.keys(RISK_LABELS);
 
 const PostModal = ({
   isOpen,
@@ -33,162 +13,53 @@ const PostModal = ({
   mode,
   post,
   onSave,
+  saving = false,
 }) => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [imagePreview, setImagePreview] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
 
-  /*
-  ====================================================
-  FORM STATES
-  ====================================================
-
-  Mantienen los valores temporales del formulario.
-
-  Se utilizan para permitir edición sin modificar
-  directamente los datos originales del post.
-  */
-
-  const [title, setTitle] =
-    useState("");
-
-  const [description, setDescription] =
-    useState("");
-
-  /*
-  ====================================================
-  IMAGE PREVIEW STATE
-  ====================================================
-
-  Almacena la imagen que se mostrará
-  dentro del modal.
-
-  Puede provenir de:
-
-  - Una publicación existente.
-  - Una nueva imagen seleccionada.
-  */
-
-  const [imagePreview, setImagePreview] =
-    useState("");
-
-  /*
-  ====================================================
-  SELECTED FILE STATE
-  ====================================================
-
-  Guarda el archivo original seleccionado
-  por el usuario.
-
-  Actualmente se conserva para futuras
-  integraciones con Supabase Storage.
-  */
-
-  const [selectedFile, setSelectedFile] =
-    useState(null);
-
-  /*
-  ====================================================
-  POST SYNCHRONIZATION
-  ====================================================
-
-  Cada vez que cambia el post recibido
-  desde el componente padre:
-
-  - Actualiza título
-  - Actualiza descripción
-  - Actualiza imagen
-
-  Esto permite reutilizar el mismo modal
-  para diferentes publicaciones.
-  */
+  const [name, setName] = useState("");
+  const [region, setRegion] = useState("");
+  const [wasteType, setWasteType] = useState("organico");
+  const [amount, setAmount] = useState("");
+  const [riskLevel, setRiskLevel] = useState("bajo");
 
   useEffect(() => {
-
     if (!post) return;
-
     setTitle(post.title || "");
-    setDescription(
-      post.description || ""
-    );
-
-    setImagePreview(
-      post.image_url || ""
-    );
-
+    setDescription(post.description || "");
+    setImagePreview(post.image_url || "");
     setSelectedFile(null);
-
+    setName(post.name || "");
+    setRegion(post.region || "");
+    setWasteType(post.wasteType || "organico");
+    setAmount(post.amount != null ? String(post.amount) : "");
+    setRiskLevel(post.riskLevel || "bajo");
   }, [post]);
-
-  /*
-  ====================================================
-  MODAL VISIBILITY
-  ====================================================
-
-  Si el modal no está abierto,
-  no se renderiza nada.
-
-  Esto evita renders innecesarios
-  y reduce consumo de recursos.
-  */
 
   if (!isOpen) return null;
 
-  /*
-  ====================================================
-  IMAGE SELECT HANDLER
-  ====================================================
+  const isViewMode = mode === "view";
+  const isMapPost = Boolean(post?.fromMap);
+  const displayImage = post?.image_url || imagePreview;
 
-  Se ejecuta cuando el usuario
-  selecciona una imagen.
-
-  Funciones:
-
-  1. Guarda el archivo.
-  2. Genera una vista previa.
-  3. Actualiza la imagen mostrada.
-  */
-
-  const handleImageSelect = (
-    event
-  ) => {
-
-    const file =
-      event.target.files[0];
-
+  const handleImageSelect = (event) => {
+    const file = event.target.files[0];
     if (!file) return;
-
     setSelectedFile(file);
-
-    const preview =
-      URL.createObjectURL(file);
-
+    const preview = URL.createObjectURL(file);
     if (imagePreview.startsWith("blob:")) {
       URL.revokeObjectURL(imagePreview);
     }
-
     setImagePreview(preview);
   };
-
-  /*
-  ====================================================
-  SAVE HANDLER
-  ====================================================
-
-  Construye un objeto actualizado
-  con toda la información del post.
-
-  Luego envía los datos al componente padre
-  mediante la función onSave.
-
-  El componente padre será responsable de:
-
-  - Actualizar estado.
-  - Guardar en base de datos.
-  - Subir imágenes.
-  */
 
   const handleSubmit = () => {
     if (!post) return;
 
-    const postData = {
+    const base = {
       ...post,
       title: title.trim(),
       description: description.trim(),
@@ -196,36 +67,29 @@ const PostModal = ({
       imageFile: selectedFile,
     };
 
-    onSave(postData);
+    if (isMapPost) {
+      onSave({
+        ...base,
+        name: name.trim(),
+        region: region.trim(),
+        wasteType,
+        amount: amount === "" ? 0 : Number(amount),
+        riskLevel,
+      });
+      return;
+    }
+
+    onSave(base);
   };
 
-  /*
-  ====================================================
-  VIEW MODE CHECK
-  ====================================================
-
-  Determina qué interfaz mostrar.
-
-  true  -> Vista pública
-  false -> Editor
-  */
-
-  const isViewMode =
-    mode === "view";
-
   return (
-
-    <div className="modal-overlay">
-
-      <div className="post-modal">
-
-        {/* ======================================
-            CLOSE BUTTON
-            ======================================
-
-            Cierra el modal sin guardar.
-        */}
-
+    <div className="modal-overlay" onClick={onClose} role="presentation">
+      <div
+        className="post-modal"
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+        aria-modal="true"
+      >
         <button
           type="button"
           className="close-modal-btn"
@@ -235,139 +99,170 @@ const PostModal = ({
           ×
         </button>
 
-        {/* ======================================
-            IMAGE SECTION
-            ======================================
-
-            Muestra la imagen actual.
-
-            Si no existe imagen,
-            muestra un placeholder.
-        */}
-
-        <div className="modal-image-container">
-
-          {imagePreview ? (
-
-            <img
-              src={imagePreview}
-              alt={title}
-              className="modal-image"
-            />
-
-          ) : (
-
-            <div className="image-placeholder">
-              Sin seleccionar
-            </div>
-
-          )}
-
-        </div>
-
-        {/* ======================================
-            CONTENT SECTION
-            ====================================== */}
+        {displayImage && !isMapPost && (
+          <div className="modal-image-container">
+            <img src={displayImage} alt={title} className="modal-image" />
+          </div>
+        )}
 
         <div className="modal-content">
-
           {isViewMode ? (
-
-            /*
-            ======================================
-            VIEW MODE
-            ======================================
-
-            Solo muestra información.
-            No permite edición.
-            */
-
             <>
-              <h2>{title}</h2>
+              <h2>{isMapPost ? post.name : title}</h2>
 
-              <p>{description}</p>
+              {isMapPost && (
+                <dl className="modal-map-details">
+                  <div>
+                    <dt>Región</dt>
+                    <dd>{post.region || "—"}</dd>
+                  </div>
+                  <div>
+                    <dt>Tipo de residuo</dt>
+                    <dd>
+                      {WASTE_LABELS[post.wasteType] || post.wasteType || "—"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Cantidad</dt>
+                    <dd>
+                      {post.amount !== undefined && post.amount !== ""
+                        ? post.amount
+                        : "—"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Riesgo</dt>
+                    <dd>
+                      {RISK_LABELS[post.riskLevel] || post.riskLevel || "—"}
+                    </dd>
+                  </div>
+                  <div>
+                    <dt>Fecha</dt>
+                    <dd>{post.timestamp || "—"}</dd>
+                  </div>
+                  {post.analysis?.valid && (
+                    <div
+                      className="modal-agentecora"
+                      style={{ "--risk-hex": post.analysis.hex }}
+                    >
+                      <dt>AgenteCora</dt>
+                      <dd>
+                        {post.analysis.nivel} ({post.analysis.score}/100)
+                      </dd>
+                    </div>
+                  )}
+                </dl>
+              )}
+
+              <p className="modal-description">{description}</p>
 
               {post?.verified && (
-                <span className="verified-badge">
-                  ✓ Verificado
-                </span>
+                <span className="verified-badge">✓ Verificado</span>
               )}
             </>
-
-          ) : (
-
-            /*
-            ======================================
-            EDIT MODE
-            ======================================
-
-            Permite modificar contenido.
-            */
-
+          ) : isMapPost ? (
             <>
-
-              <input
-                type="text"
-                placeholder="Post Title"
-                value={title}
-                onChange={(e) =>
-                  setTitle(
-                    e.target.value
-                  )
-                }
-                maxLength={100}
-              />
-
-              <textarea
-                placeholder="Post Description"
-                value={description}
-                onChange={(e) =>
-                  setDescription(
-                    e.target.value
-                  )
-                }
-                maxLength={1000}
-              />
-
-              <input
-                type="file"
-                accept="image/*"
-                onChange={
-                  handleImageSelect
-                }
-              />
-
-              {/* ==========================
-                  ACTION BUTTONS
-                  ========================== */}
-
+              <h2>Editar reporte</h2>
+              <label className="modal-field">
+                <span>Nombre</span>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  maxLength={80}
+                />
+              </label>
+              <label className="modal-field">
+                <span>Región</span>
+                <input
+                  type="text"
+                  value={region}
+                  onChange={(e) => setRegion(e.target.value)}
+                  maxLength={120}
+                />
+              </label>
+              <label className="modal-field">
+                <span>Tipo de residuo</span>
+                <select
+                  value={wasteType}
+                  onChange={(e) => setWasteType(e.target.value)}
+                >
+                  {WASTE_OPTIONS.map((key) => (
+                    <option key={key} value={key}>
+                      {WASTE_LABELS[key]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="modal-field">
+                <span>Cantidad</span>
+                <input
+                  type="number"
+                  min="0"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                />
+              </label>
+              <label className="modal-field">
+                <span>Riesgo</span>
+                <select
+                  value={riskLevel}
+                  onChange={(e) => setRiskLevel(e.target.value)}
+                >
+                  {RISK_OPTIONS.map((key) => (
+                    <option key={key} value={key}>
+                      {RISK_LABELS[key]}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <div className="modal-actions">
-
                 <button
                   type="button"
                   className="save-btn"
                   onClick={handleSubmit}
+                  disabled={saving}
                 >
-                  Guardar
+                  {saving ? "Guardando…" : "Guardar"}
                 </button>
-
-                <button
-                  type="button"
-                  className="cancel-btn"
-                  onClick={onClose}
-                >
+                <button type="button" className="cancel-btn" onClick={onClose}>
                   Cancelar
                 </button>
-
               </div>
-
+            </>
+          ) : (
+            <>
+              <input
+                type="text"
+                placeholder="Título"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                maxLength={100}
+              />
+              <textarea
+                placeholder="Descripción"
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                maxLength={1000}
+              />
+              <input type="file" accept="image/*" onChange={handleImageSelect} />
+              <div className="modal-actions">
+                <button
+                  type="button"
+                  className="save-btn"
+                  onClick={handleSubmit}
+                  disabled={saving}
+                >
+                  {saving ? "Guardando…" : "Guardar"}
+                </button>
+                <button type="button" className="cancel-btn" onClick={onClose}>
+                  Cancelar
+                </button>
+              </div>
             </>
           )}
-
         </div>
-
       </div>
-
     </div>
   );
 };
