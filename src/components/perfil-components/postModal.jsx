@@ -213,24 +213,6 @@ const PostModal = ({
   const isViewMode =
     mode === "view";
 
-  const displayImage =
-    post?.picture || imagePreview;
-
-  const WASTE_LABELS = {
-    organico: "Orgánico",
-    plastico: "Plástico",
-    vidrio: "Vidrio",
-    metal: "Envases metálicos",
-    carton: "Cartón",
-    papel: "Papel",
-  };
-
-  const RISK_LABELS = {
-    bajo: "Bajo",
-    medio: "Medio",
-    alto: "Alto",
-  };
-
   return (
 
     <div className="modal-overlay">
@@ -265,10 +247,10 @@ const PostModal = ({
 
         <div className="modal-image-container">
 
-          {displayImage ? (
+          {imagePreview ? (
 
             <img
-              src={displayImage}
+              src={imagePreview}
               alt={title}
               className="modal-image"
             />
@@ -301,77 +283,7 @@ const PostModal = ({
             */
 
             <>
-              {post?.fromMap && post.name && (
-                <div className="modal-reporter">
-                  <img
-                    src={displayImage}
-                    alt=""
-                    className="modal-reporter-avatar"
-                  />
-                  <div>
-                    <span className="modal-reporter-label">
-                      Reportado por
-                    </span>
-                    <strong>{post.name}</strong>
-                  </div>
-                </div>
-              )}
-
               <h2>{title}</h2>
-
-              {post?.fromMap && (
-                <dl className="modal-map-details">
-                  <div>
-                    <dt>Tipo de residuo</dt>
-                    <dd>
-                      {WASTE_LABELS[post.wasteType] ||
-                        post.wasteType ||
-                        "—"}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>Cantidad</dt>
-                    <dd>
-                      {post.amount !== undefined &&
-                      post.amount !== ""
-                        ? post.amount
-                        : "—"}
-                    </dd>
-                  </div>
-                  <div>
-                    <dt>Riesgo declarado</dt>
-                    <dd>
-                      {RISK_LABELS[post.riskLevel] ||
-                        post.riskLevel ||
-                        "—"}
-                    </dd>
-                  </div>
-                  {post.region && (
-                    <div>
-                      <dt>Región</dt>
-                      <dd>{post.region}</dd>
-                    </div>
-                  )}
-                  {post.analysis?.valid && (
-                    <div
-                      className="modal-agentecora"
-                      style={{
-                        "--risk-hex": post.analysis.hex,
-                      }}
-                    >
-                      <dt>AgenteCora</dt>
-                      <dd>
-                        Riesgo {post.analysis.nivel} (
-                        {post.analysis.score}/100)
-                        <br />
-                        <small>
-                          {post.analysis.recomendacion}
-                        </small>
-                      </dd>
-                    </div>
-                  )}
-                </dl>
-              )}
 
               <p>{description}</p>
 

@@ -2,32 +2,14 @@
    PAGE LAYOUT
 ========================= */
 
-/* Scroll de página en /perfil (anula bloqueo global del mapa si el CSS ya cargó) */
-html:has(.profile-page-wrapper),
-body:has(.profile-page-wrapper) {
-  overflow-x: hidden;
-  overflow-y: auto;
-  height: auto;
-  min-height: 100%;
-}
-
-#root:has(.profile-page-wrapper) {
-  overflow: visible;
-  height: auto;
-  min-height: 100%;
-}
-
 .profile-page-wrapper {
   display: flex;
   flex-direction: column;
   min-height: 100vh;
-  width: 100%;
-  overflow: visible;
 }
 
 .profile-page-wrapper .profile-page {
-  flex: 1 0 auto;
-  width: 100%;
+  flex: 1;
 }
 
 .profile-page,
@@ -37,12 +19,11 @@ body:has(.profile-page-wrapper) {
 
 .profile-page {
   width: 100%;
-  min-height: 0;
+  min-height: 100vh;
 
   background: #ecece4;
 
   padding: 1.5rem;
-  padding-bottom: 2.5rem;
 }
 
 button {
@@ -427,47 +408,6 @@ button:hover {
   color: #555;
 }
 
-.post-reporter {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin-bottom: 0.35rem;
-  font-size: 0.75rem;
-  color: #00575b;
-}
-
-.post-reporter-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 1px solid #b9d1cf;
-}
-
-.post-map-meta {
-  list-style: none;
-  margin: 0.25rem 0 0.35rem;
-  padding: 0;
-  font-size: 0.75rem;
-  color: #444;
-}
-
-.post-map-meta li + li {
-  margin-top: 0.15rem;
-}
-
-.post-risk-badge {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  background: var(--risk-hex, #2e7d32);
-  color: #fff;
-  padding: 0.25rem 0.55rem;
-  border-radius: 6px;
-  font-size: 0.7rem;
-  font-weight: 600;
-}
-
 .post-admin-controls {
   display: flex;
   justify-content: center;
@@ -565,58 +505,6 @@ button:hover {
   background: #f2f2f2;
 
   border-radius: 12px;
-}
-
-.modal-reporter {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin-bottom: 0.5rem;
-}
-
-.modal-reporter-avatar {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  object-fit: cover;
-  border: 2px solid #b9d1cf;
-}
-
-.modal-reporter-label {
-  display: block;
-  font-size: 0.75rem;
-  color: #666;
-}
-
-.modal-map-details {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-  gap: 0.75rem 1rem;
-  margin: 0.5rem 0;
-  padding: 1rem;
-  background: #f5f8f7;
-  border-radius: 10px;
-  border: 1px solid #b9d1cf;
-}
-
-.modal-map-details dt {
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: #666;
-  margin-bottom: 0.2rem;
-}
-
-.modal-map-details dd {
-  margin: 0;
-  font-size: 0.95rem;
-  color: #00575b;
-  font-weight: 600;
-}
-
-.modal-agentecora dd {
-  font-weight: 500;
-  color: var(--risk-hex, #2e7d32);
 }
 
 .modal-content {
