@@ -1,0 +1,460 @@
+.informativa-page {
+  --index: clamp(15px, 1.15vw + 1.15vh, 22px);
+  --transition: cubic-bezier(0.1, 0.7, 0, 1);
+  --gap-base: 0.2rem;
+  --shift: 0px;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  background-image: url("../img/Fondo.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.informativa-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.105);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Area que hace scroll vertical (Header y Footer quedan fijos fuera) */
+.informativa-content {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 1rem 2rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(4, 80, 79, 0.45) transparent;
+}
+
+.informativa-intro {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.informativa-intro h1 {
+  margin: 0;
+  font-size: clamp(1.4rem, 4vw, 2.2rem);
+}
+
+.informativa-intro p {
+  margin: 0;
+  max-width: 640px;
+  color: #04504f;
+  font-size: clamp(0.98rem, 2.6vw, 1.12rem);
+  line-height: 1.55;
+  background: rgba(255, 253, 232, 0.88);
+  border: 1px solid rgba(4, 80, 79, 0.2);
+  border-radius: 12px;
+  padding: 0.6rem 1rem;
+}
+
+/* ===== Galeria 3D ===== */
+.wrapper {
+  height: clamp(340px, 52vh, 500px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  flex-shrink: 0;
+  margin: 1.75rem 0 1.75rem;
+}
+
+.items {
+  display: flex;
+  gap: var(--gap, var(--gap-base));
+  perspective: calc(var(--index) * 35);
+  perspective-origin: 50% 50%;
+  transform: translateX(var(--shift));
+  transform-style: preserve-3d;
+  will-change: transform;
+  overflow: visible;
+  transition: transform 0.6s var(--transition);
+  padding-inline: 48px;
+  margin-inline: -48px;
+}
+
+.items.hovering {
+  --gap: calc(var(--gap-base) / 2);
+}
+
+.item {
+  position: relative;
+  width: calc(var(--index) * 4);
+  height: calc(var(--index) * 15);
+  background: #dfe5dd center / cover no-repeat;
+  cursor: pointer;
+  transition: transform 1.25s var(--transition), width 0.5s var(--transition);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+  will-change: transform, width;
+  outline: none;
+  border-radius: 100px;
+  flex: 0 0 auto;
+  user-select: none;
+  border: 2px solid rgba(225, 222, 163, 0.55);
+  box-shadow: 0 10px 26px rgba(4, 80, 79, 0.35);
+  overflow: hidden;
+}
+
+/* Degradado solo en la base para que el texto se lea sin oscurecer la imagen */
+.item::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 42%;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.78), rgba(0, 0, 0, 0));
+  opacity: 0;
+  transition: opacity 0.4s var(--transition);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.item.is-hover-main::after,
+.item.is-open::after {
+  opacity: 1;
+}
+
+.item:focus-visible {
+  border-color: #e1dea3;
+  box-shadow: 0 0 0 3px rgba(225, 222, 163, 0.6);
+}
+
+.item.is-hover-main {
+  transform: translateZ(calc(var(--index) * 10));
+  z-index: 10;
+}
+.item.is-right-1 {
+  transform: translateZ(calc(var(--index) * 8.5)) rotateY(35deg);
+  z-index: 9;
+}
+.item.is-right-2 {
+  transform: translateZ(calc(var(--index) * 5.6)) rotateY(40deg);
+  z-index: 8;
+}
+.item.is-right-3 {
+  transform: translateZ(calc(var(--index) * 2.5)) rotateY(30deg);
+  z-index: 7;
+}
+.item.is-right-4 {
+  transform: translateZ(calc(var(--index) * 0.6)) rotateY(15deg);
+  z-index: 6;
+}
+.item.is-left-1 {
+  transform: translateZ(calc(var(--index) * 8.5)) rotateY(-35deg);
+  z-index: 9;
+}
+.item.is-left-2 {
+  transform: translateZ(calc(var(--index) * 5.6)) rotateY(-40deg);
+  z-index: 8;
+}
+.item.is-left-3 {
+  transform: translateZ(calc(var(--index) * 2.5)) rotateY(-30deg);
+  z-index: 7;
+}
+.item.is-left-4 {
+  transform: translateZ(calc(var(--index) * 0.6)) rotateY(-15deg);
+  z-index: 6;
+}
+
+.items.is-open .item {
+  transition: transform 0.8s var(--transition), width 0.6s var(--transition);
+}
+
+.item.is-open {
+  width: 20vw;
+  z-index: 100;
+  transform: translateZ(calc(var(--index) * 10));
+}
+
+.item-caption {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 16px;
+  z-index: 2;
+  text-align: center;
+  font-size: 0.95rem;
+  font-weight: 800;
+  color: #fffef8;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.95);
+  opacity: 0;
+  transition: opacity 0.4s var(--transition);
+  pointer-events: none;
+  padding: 0 10px;
+}
+
+.item.is-hover-main .item-caption,
+.item.is-open .item-caption {
+  opacity: 1;
+}
+
+/* ===== Card de informacion (fondo verde del sitio) ===== */
+.informativa-detail {
+  width: min(820px, 100%);
+  margin: 0 auto;
+  padding: clamp(1.1rem, 3vw, 1.7rem);
+  background: linear-gradient(140deg, #04504f 0%, #067a78 100%);
+  border: 1px solid rgba(225, 222, 163, 0.35);
+  border-radius: 20px;
+  box-shadow: 0 16px 36px rgba(4, 80, 79, 0.32);
+  color: #f4f6ec;
+}
+
+.informativa-detail-tag {
+  display: inline-block;
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  padding: 0.3rem 0.9rem;
+  border-radius: 999px;
+  background: #e1dea3;
+  color: #04504f;
+  margin-bottom: 0.85rem;
+}
+
+.informativa-detail h2 {
+  margin: 0 0 0.7rem;
+  font-size: clamp(1.6rem, 4vw, 2.3rem);
+}
+
+.informativa-detail-text {
+  margin: 0 0 1.1rem;
+  color: #eef1e3;
+  line-height: 1.65;
+  font-size: clamp(1.02rem, 2.7vw, 1.18rem);
+}
+
+.informativa-detail-tips {
+  margin: 0;
+  padding-left: 1.2rem;
+  display: grid;
+  gap: 0.6rem;
+  color: #f4f6ec;
+}
+
+.informativa-detail-tips li {
+  line-height: 1.5;
+  font-size: clamp(0.98rem, 2.6vw, 1.1rem);
+}
+
+.informativa-detail-tips li::marker {
+  color: #e1dea3;
+}
+
+.informativa-detail-hint {
+  text-align: center;
+  color: #eef1e3;
+  font-size: 1.05rem;
+  margin: 0;
+  padding: 0.7rem 0;
+}
+
+/* ===== Leyenda de colores (riesgo de la IA) ===== */
+.informativa-legend {
+  width: min(900px, 100%);
+  margin: 0.5rem auto 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+}
+
+.informativa-legend-title {
+  margin: 0;
+  font-size: clamp(1.2rem, 3.2vw, 1.8rem);
+}
+
+.informativa-legend-intro {
+  margin: 0;
+  max-width: 640px;
+  text-align: center;
+  color: #04504f;
+  font-size: clamp(0.95rem, 2.5vw, 1.08rem);
+  line-height: 1.55;
+  background: rgba(255, 253, 232, 0.88);
+  border: 1px solid rgba(4, 80, 79, 0.2);
+  border-radius: 12px;
+  padding: 0.55rem 0.95rem;
+}
+
+.informativa-legend-cards {
+  width: 100%;
+  display: flex;
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.informativa-legend-card {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  background: var(--legend-color, #2e7d32);
+  color: #fff;
+  border-radius: 18px;
+  padding: 1.1rem 1.15rem;
+  box-shadow: 0 12px 28px rgba(4, 80, 79, 0.28);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.informativa-legend-dot {
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+}
+
+.informativa-legend-card h3 {
+  margin: 0;
+  font-size: clamp(1.05rem, 2.8vw, 1.3rem);
+}
+
+.informativa-legend-card p {
+  margin: 0;
+  font-size: clamp(0.9rem, 2.4vw, 1.05rem);
+  line-height: 1.5;
+  color: #fbfbf3;
+}
+
+/* ===== Pantallas gigantes ===== */
+@media (min-width: 1600px) {
+  .informativa-content {
+    padding: 2rem 1.5rem 3rem;
+    gap: 1.5rem;
+  }
+
+  .item.is-open {
+    width: 16vw;
+  }
+}
+
+/* ===== Responsive movil ===== */
+@media (max-width: 900px) {
+  .informativa-content {
+    padding: 1rem 0.85rem 1.75rem;
+  }
+
+  .informativa-legend-cards {
+    flex-wrap: wrap;
+  }
+
+  .informativa-legend-card {
+    flex: 1 1 220px;
+  }
+}
+
+@media (max-width: 640px) {
+  .informativa-page {
+    --index: clamp(13px, 1.6vw + 1.6vh, 20px);
+  }
+
+  .wrapper {
+    height: clamp(280px, 46vh, 400px);
+    margin: 1rem 0 1.25rem;
+  }
+
+  .items {
+    padding-inline: 28px;
+    margin-inline: -28px;
+  }
+
+  .item {
+    width: calc(var(--index) * 3.8);
+    height: calc(var(--index) * 13);
+    border-radius: 60px;
+  }
+
+  .item.is-open {
+    width: 66vw;
+    border-radius: 40px;
+  }
+
+  .item-caption {
+    font-size: 0.88rem;
+  }
+
+  .informativa-detail {
+    border-radius: 16px;
+  }
+
+  .informativa-detail-tips {
+    grid-template-columns: 1fr;
+  }
+
+  .informativa-legend-cards {
+    flex-direction: column;
+  }
+
+  .informativa-legend-card {
+    flex: 1 1 auto;
+  }
+}
+
+@media (max-width: 400px) {
+  .informativa-page {
+    --index: clamp(11px, 2.2vw + 2.2vh, 16px);
+  }
+
+  .items {
+    padding-inline: 16px;
+    margin-inline: -16px;
+  }
+
+  .item {
+    width: calc(var(--index) * 3.4);
+    height: calc(var(--index) * 12);
+    border-radius: 44px;
+  }
+
+  .item.is-open {
+    width: 70vw;
+  }
+}
+
+/* Pantallas ultra estrechas: Samsung Z Fold plegado, etc. */
+@media (max-width: 340px) {
+  .informativa-page {
+    --index: clamp(9px, 2.4vw + 2.4vh, 13px);
+    --gap-base: 0.12rem;
+  }
+
+  .items {
+    padding-inline: 10px;
+    margin-inline: -10px;
+  }
+
+  .item {
+    width: calc(var(--index) * 3);
+    height: calc(var(--index) * 11);
+    border-radius: 32px;
+    border-width: 1.5px;
+  }
+
+  .item.is-open {
+    width: 74vw;
+  }
+}

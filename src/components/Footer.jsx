@@ -25,12 +25,12 @@ const Footer = () => {
           <span className="footer-label">Archivero</span>
         </Link>
 
-        <a className="footer-item" href="#">
+        <Link className="footer-item" to="/informativa">
           <span className="footer-icon">
             <img src={info} alt="Web-Informativa" />
           </span>
           <span className="footer-label">Web informativa</span>
-        </a>
+        </Link>
 
         <Link className="footer-item" to="/perfil">
           <span className="footer-icon">

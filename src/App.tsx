@@ -2,6 +2,7 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import MapaHome from "./pages/MapaHome.jsx";
 import ArchiveroPage from "./pages/ArchiveroPage.jsx";
 import Perfil from "./pages/perfil.jsx";
+import Informativa from "./pages/Informativa.jsx";
 import Login from "./pages/Login.jsx";
 import NotFound from "./pages/NotFound.tsx";
 import AgenteCoraChat from "./components/AgenteCoraChat.jsx";
@@ -33,6 +34,14 @@ const App = () => (
         element={
           <ProtectedRoute>
             <Perfil />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/informativa"
+        element={
+          <ProtectedRoute>
+            <Informativa />
           </ProtectedRoute>
         }
       />

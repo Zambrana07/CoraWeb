@@ -2,7 +2,8 @@
   display: flex;
   flex-direction: column;
   height: 100vh;
-  width: 100vw;
+  width: 100%;
+  max-width: 100%;
   margin: 0;
   padding: 0;
   overflow: hidden;
@@ -33,6 +34,7 @@
   gap: 1rem;
   padding: 1.5rem;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .archivero-page-title {
@@ -109,6 +111,7 @@
   height: 36px;
   border-radius: 50%;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .archivero-carousel-btn:disabled {
@@ -637,5 +640,22 @@
   .archivero-list-image {
     width: 48px;
     height: 48px;
+  }
+}
+
+@media (max-width: 360px) {
+  .archivero-page-content {
+    padding: 0.75rem 0.5rem 1rem;
+  }
+
+  .archivero-carousel-base {
+    gap: 0.3rem;
+    padding: 0.4rem 0;
+  }
+
+  .archivero-carousel-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 0.85rem;
   }
 }

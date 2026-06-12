@@ -1,7 +1,17 @@
 import { useEffect, useRef, useState } from "react";
+import { useLocation } from "react-router-dom";
 import { answerQuestion, CONVERSATION_STARTERS } from "../agent/agenteCora";
 import coraLogo from "../assets/img/CoraLogo.png";
 import "../assets/styles/AgenteCora.css";
+
+const pageFromPath = (pathname) => {
+  if (pathname === "/") return "home";
+  if (pathname.startsWith("/archivero")) return "archivero";
+  if (pathname.startsWith("/perfil")) return "perfil";
+  if (pathname.startsWith("/informativa")) return "informativa";
+  if (pathname.startsWith("/login")) return "login";
+  return null;
+};
 
 const WELCOME = {
   from: "bot",
@@ -13,6 +23,7 @@ function AgenteCoraChat() {
   const [messages, setMessages] = useState([WELCOME]);
   const [input, setInput] = useState("");
   const endRef = useRef(null);
+  const location = useLocation();
 
   useEffect(() => {
     if (open) endRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -21,7 +32,7 @@ function AgenteCoraChat() {
   const send = (rawText) => {
     const text = (rawText ?? input).trim();
     if (!text) return;
-    const reply = answerQuestion(text);
+    const reply = answerQuestion(text, { page: pageFromPath(location.pathname) });
     setMessages((prev) => [...prev, { from: "user", text }, { from: "bot", text: reply.text }]);
     setInput("");
     if (reply.action === "tour") {

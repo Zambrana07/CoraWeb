@@ -135,6 +135,8 @@ const ALLOWED_KEYWORDS = [
   "agua", "pendiente", "verde", "amarillo", "rojo", "color", "nivel", "material",
   "archivero", "electronic", "aceite", "quimico", "vertedero", "reduc", "reutiliz",
   "lata", "envase", "abono", "limpiar", "manej", "gestion",
+  "ambiente", "planeta", "naturaleza", "sostenib", "ecolog", "huella", "energia",
+  "transporte", "arbol", "bosque", "clima", "ahorr", "consumo", "emision",
 ];
 
 const BANNED_KEYWORDS = [
@@ -173,13 +175,128 @@ const detectMaterial = (msg) => {
   return null;
 };
 
+// Consejos generales de cuidado del ambiente (mas alla de CoraWeb).
+const ENV_TIPS = {
+  agua:
+    "Para cuidar el agua: cierra la llave mientras te enjabonas o cepillas, repara fugas, reutiliza el agua de lavar verduras para regar y toma duchas mas cortas. Cada gota cuenta.",
+  energia:
+    "Para ahorrar energia: apaga luces y aparatos que no uses, desconecta cargadores, aprovecha la luz natural, usa focos LED y prefiere electrodomesticos eficientes. Menos energia es menos contaminacion.",
+  transporte:
+    "Para un transporte mas limpio: camina o usa bicicleta en trayectos cortos, comparte vehiculo y usa transporte publico. Asi reduces las emisiones que calientan el planeta.",
+  arboles:
+    "Sembrar y cuidar arboles ayuda muchisimo: dan sombra, limpian el aire, retienen el suelo y son hogar de muchas especies. Protege los que ya existen y planta nativos cuando puedas.",
+  consumo:
+    "Consume de forma responsable: compra solo lo necesario, evita lo desechable, prefiere productos reutilizables y de empaques reciclables, y arregla antes de botar. Reducir es el primer paso.",
+  general:
+    "Cuidar el ambiente esta en lo cotidiano: reduce, reutiliza y recicla; ahorra agua y energia; evita plasticos de un solo uso; muevete de forma limpia; y respeta la naturaleza. Pequenos habitos suman mucho.",
+};
+
+const detectEnv = (msg) => {
+  if (has(msg, ["ahorrar agua", "ahorro de agua", "ahorrar el agua", "gastar menos agua", "cuidar el agua", "malgastar agua"]))
+    return "agua";
+  if (has(msg, ["ahorrar energia", "ahorrar luz", "ahorro de energia", "gastar menos luz", "consumo electrico", "ahorrar electricidad"]))
+    return "energia";
+  if (has(msg, ["transporte", "bicicleta", "caminar", "carro", "auto", "vehiculo", "combustible", "emisiones", "gasolina"]))
+    return "transporte";
+  if (has(msg, ["arbol", "arboles", "sembrar", "plantar", "reforest", "bosque"])) return "arboles";
+  if (has(msg, ["consumo responsable", "comprar menos", "un solo uso", "desechable", "consumir", "huella"]))
+    return "consumo";
+  if (
+    has(msg, [
+      "cuidar el ambiente", "cuidar el medio ambiente", "medio ambiente", "cuidar el planeta",
+      "cuidar la naturaleza", "proteger la naturaleza", "ayudar al planeta", "ayudar al ambiente",
+      "ser sostenible", "sostenib", "ecolog", "ser mas verde", "salvar el planeta",
+    ])
+  )
+    return "general";
+  return null;
+};
+
+// Informacion de cada pagina de CoraWeb para que el agente sepa donde esta el usuario.
+export const PAGE_INFO = {
+  home: {
+    nombre: "Home (el mapa)",
+    resumen:
+      "Estas en Home, el mapa de CoraWeb. Aqui activas tu ubicacion, registras puntos de residuos y llenas el formulario para que yo calcule el riesgo.",
+    acciones: [
+      "Activar mi ubicacion (boton arriba a la izquierda)",
+      "Registrar un punto de residuos haciendo clic en el mapa",
+      "Llenar el formulario y ver el nivel de riesgo con su color",
+    ],
+  },
+  archivero: {
+    nombre: "Archivero",
+    resumen:
+      "Estas en el Archivero. Aqui se guardan todos los puntos reportados con su nivel de riesgo. Puedes buscarlos, filtrarlos por region, abrir cada punto y dejar comentarios.",
+    acciones: [
+      "Buscar un punto por nombre",
+      "Filtrar por region",
+      "Abrir un punto para ver sus datos y comentar",
+    ],
+  },
+  perfil: {
+    nombre: "Perfil",
+    resumen:
+      "Estas en tu Perfil. Aqui ves tu informacion, tus publicaciones y tus estadisticas dentro de CoraWeb.",
+    acciones: ["Revisar tus publicaciones", "Ver tus estadisticas", "Editar tu informacion"],
+  },
+  informativa: {
+    nombre: "Web informativa",
+    resumen:
+      "Estas en la Web informativa. La galeria de arriba tiene temas de reciclaje y residuos; al hacer clic en una tarjeta, abajo cambia la informacion de ese tema.",
+    acciones: [
+      "Haz clic en una tarjeta de la galeria",
+      "Lee la informacion del tema que aparece abajo",
+    ],
+  },
+  login: {
+    nombre: "Inicio de sesion",
+    resumen: "Estas en la pantalla de inicio de sesion. Ingresa tu usuario y contrasena para entrar a CoraWeb.",
+    acciones: ["Escribir usuario y contrasena", "Presionar Ingresar"],
+  },
+};
+
+const describePage = (page) => {
+  const info = PAGE_INFO[page];
+  if (!info) {
+    return "Ahora mismo no estoy seguro de en que pagina estas, pero CoraWeb tiene Home (mapa), Archivero, Web informativa y Perfil. En cual quieres ayuda?";
+  }
+  const lista = info.acciones.map((a) => `- ${a}`).join("\n");
+  return `${info.resumen}\n\nAqui puedes:\n${lista}`;
+};
+
 // Responde una pregunta del usuario en lenguaje natural, dentro del contexto de CoraWeb.
+// context.page puede ser: home | archivero | perfil | informativa | login.
 // Devuelve { text, action? }. action: 'tour' inicia el recorrido guiado.
-export function answerQuestion(text) {
+export function answerQuestion(text, context = {}) {
   const msg = normalize(text);
+  const page = context.page || null;
   if (!msg) return { text: NO_DATA_REPLY };
 
   if (has(msg, BANNED_KEYWORDS)) return { text: OFF_TOPIC_REPLY };
+
+  if (
+    has(msg, [
+      "en que pagina", "donde estoy", "que pagina es", "en que parte estoy",
+      "en que seccion", "en que pantalla", "que es esta pagina", "que pagina",
+      "donde me encuentro",
+    ])
+  ) {
+    return { text: describePage(page) };
+  }
+
+  if (
+    page &&
+    has(msg, [
+      "que hago aqui", "que puedo hacer aqui", "que hago en esta", "que puedo hacer en esta",
+      "que hay aqui", "para que sirve esta pagina", "que se hace aqui", "ayudame aqui",
+      "que opciones tengo aqui", "que se puede hacer aqui",
+    ])
+  ) {
+    const reply = { text: describePage(page) };
+    if (page === "home") reply.action = "tour";
+    return reply;
+  }
 
   if (has(msg, ["hola", "buenas", "buenos dias", "buenas tardes", "que tal", "hey", "saludos", "ola"])) {
     return {
@@ -212,14 +329,40 @@ export function answerQuestion(text) {
     };
   }
 
-  if (has(msg, ["agregar punto", "agrego un punto", "anadir punto", "registrar punto", "crear punto", "marcar punto", "poner un punto", "reportar", "como reporto", "como agrego"])) {
+  if (has(msg, ["agregar punto", "agrego un punto", "anadir punto", "registrar punto", "crear punto", "marcar punto", "poner un punto", "reportar", "como reporto", "como agrego", "nuevo punto"])) {
+    const enHome = page === "home";
+    const aviso = page && !enHome
+      ? " Estas en " + (PAGE_INFO[page]?.nombre || "otra pagina") + "; primero ve a Home (el mapa) desde el menu de abajo."
+      : "";
     return {
-      text: "Para registrar un punto activa el modo \"Registrar punto de localizacion de residuos\", haz clic en el mapa donde estan los residuos y llena el formulario. Te lo voy senalando.",
-      action: "tour",
+      text:
+        "Para agregar un punto:\n" +
+        "1. Activa el modo \"Registrar punto de localizacion de residuos\".\n" +
+        "2. Haz clic en el mapa, justo donde estan los residuos.\n" +
+        "3. Llena el formulario (tipo de residuo, cantidad, pendiente, cercania al agua, etc.).\n" +
+        "4. Guarda y yo te calculo el nivel de riesgo con su color." +
+        aviso +
+        (enHome ? " Te lo voy senalando en pantalla." : ""),
+      action: enHome ? "tour" : undefined,
     };
   }
 
-  if (has(msg, ["ubicacion", "ubicar", "localiz", "donde estoy", "mi posicion", "gps", "centrar el mapa"])) {
+  if (has(msg, ["eliminar punto", "borrar punto", "quitar punto", "como borro", "como elimino"])) {
+    return {
+      text: "Solo puedes eliminar los puntos que tu creaste. Abre el punto en el mapa y usa el boton de eliminar; los puntos de otras personas no se pueden borrar.",
+    };
+  }
+
+  if (has(msg, ["comentar", "comentario", "comentarios", "dejar opinion", "opinar"])) {
+    return {
+      text: "En el Archivero abre cualquier punto y abajo encontraras la seccion de comentarios: escribe tu nombre (opcional) y tu opinion, luego presiona \"Publicar comentario\".",
+    };
+  }
+
+  const env = detectEnv(msg);
+  if (env) return { text: ENV_TIPS[env] };
+
+  if (has(msg, ["ubicacion", "ubicar", "localiz", "mi posicion", "gps", "centrar el mapa"])) {
     return {
       text: "Toca el boton \"Activar mi ubicacion\" arriba a la izquierda y el mapa te lleva a tu posicion actual. Te lo muestro en pantalla.",
       action: "tour",
