@@ -150,7 +150,6 @@ function Informativa() {
         <section className="informativa-detail">
           {active ? (
             <>
-              <span className="informativa-detail-tag">{active.title}</span>
               <h2 className="nature-title">{active.title}</h2>
               <p className="informativa-detail-text">{active.text}</p>
               <ul className="informativa-detail-tips">

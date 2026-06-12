@@ -1,5 +1,5 @@
 .informativa-page {
-  --index: clamp(15px, 1.15vw + 1.15vh, 22px);
+  --index: clamp(16px, 1.25vw + 1.25vh, 24px);
   --transition: cubic-bezier(0.1, 0.7, 0, 1);
   --gap-base: 0.2rem;
   --shift: 0px;
@@ -70,13 +70,13 @@
 
 /* ===== Galeria 3D ===== */
 .wrapper {
-  height: clamp(340px, 52vh, 500px);
+  height: clamp(360px, 56vh, 540px);
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: visible;
   flex-shrink: 0;
-  margin: 1.75rem 0 1.75rem;
+  margin: 2rem 0 1.75rem;
 }
 
 .items {
@@ -99,8 +99,8 @@
 
 .item {
   position: relative;
-  width: calc(var(--index) * 4);
-  height: calc(var(--index) * 15);
+  width: calc(var(--index) * 4.3);
+  height: calc(var(--index) * 15.5);
   background: #dfe5dd center / cover no-repeat;
   cursor: pointer;
   transition: transform 1.25s var(--transition), width 0.5s var(--transition);
