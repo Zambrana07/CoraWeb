@@ -118,6 +118,24 @@ AUDIT FIX (2026-06-03) — Full perfil stack review
 26. perfil.css: Added profile-page-wrapper layout and .editor-actions styles.
 
 
+MAP SYNC + MOCKUP REDESIGN (2026-06-04)
+------------------------------------------------
+30. Firebase sync: reportesMapper, reportesService, useFirebaseReportes.
+31. Admin CRUD on map posts: verify, edit, delete via Firestore.
+32. Layout: profile-hero banner, floating stats, name below, Instagram grid.
+33. postModal: map fields (region, waste, amount, risk, timestamp) + edit form.
+34. myMapComponent: verificado: false on new reports.
+
+RESTORE AFTER BAD PULL (2026-06-04 10:07 CST)
+------------------------------------------------
+27. Restored perfil stack from commit 94792e0 ("proyecto ya para presentar"):
+    perfil.jsx, perfil.css, postcard, postModal, postsGrid, abtme, adminLogin, perfil-stats.
+28. Removed map→perfil integration artifacts added after that commit:
+    useFirebaseReportes.js, reportesMapper.js, docs/map-perfil-integration.md.
+29. Re-applied scroll fix only (perfil.css :has rules + perfil.jsx useEffect on body overflow).
+    MapaHome.css global scroll lock fix was kept (not reverted).
+
+
 FUTURE NOTES (no code changed)
 ------------------------------
 - Connect perfil/posts state to Supabase when ready.

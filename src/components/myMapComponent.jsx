@@ -188,7 +188,8 @@ function MyMapComponent() {
                 clasificacion_material: formData.materialType,
                 latitud: tempMarker.position[0],
                 longitud: tempMarker.position[1],
-                fecha_creacion: serverTimestamp()
+                fecha_creacion: serverTimestamp(),
+                verificado: false,
             });
 
             setTempMarker(null);

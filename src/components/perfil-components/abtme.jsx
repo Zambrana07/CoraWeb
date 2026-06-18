@@ -156,7 +156,7 @@ const Abtme = ({
       */}
 
       <div className="section-header">
-        <h2>Sobre Mi</h2>
+        <h2 className="section-title-underline">Sobre Mí</h2>
 
         {isAdmin && !editing && (
           <button
