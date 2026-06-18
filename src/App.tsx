@@ -4,7 +4,7 @@ import ArchiveroPage from "./pages/ArchiveroPage.jsx";
 import Perfil from "./pages/perfil.jsx";
 import Informativa from "./pages/Informativa.jsx";
 import Login from "./pages/Login.jsx";
-import NotFound from "./pages/NotFound.tsx";
+import NotFound from "./pages/NotFound.jsx";
 import AgenteCoraChat from "./components/AgenteCoraChat.jsx";
 import CoraTour from "./components/CoraTour.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
