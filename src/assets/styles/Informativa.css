@@ -16,7 +16,6 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-
 }
 
 .informativa-page::before {
@@ -42,7 +41,7 @@
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(4, 80, 79, 0.45) transparent;
-    margin-bottom: 10vh;
+  margin-bottom: 10vh;
 }
 
 .informativa-intro {
@@ -308,7 +307,6 @@
   gap: 1rem;
   align-items: stretch;
   margin-bottom: 5vh;
-
 }
 
 .informativa-legend-card {
