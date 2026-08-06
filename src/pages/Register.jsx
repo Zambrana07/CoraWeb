@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
 import logo from "../assets/img/CoraLogo.png";
 import "../assets/styles/Login.css";
-import { getStoredUser } from "../lib/authSession";
+import { getStoredUser, setStoredUser } from "../lib/authSession";
 
 function isAuthenticated() {
   const user = getStoredUser();
@@ -76,13 +76,10 @@ export default function Register() {
       const data = await response.json();
 
       if (data.ok === true) {
-        localStorage.setItem(
-          "user",
-          JSON.stringify({
-            id: data.id,
-            rol: data.rol,
-          })
-        );
+        setStoredUser({
+          id: data.id,
+          rol: data.rol,
+        });
         navigate("/");
         return;
       }

@@ -23,7 +23,7 @@ async function getAuthenticatedAdmin(req, res) {
     return null;
   }
 
-  if (adminUser.rol_id !== 2) {
+  if (Number(adminUser.rol_id) !== 2) {
     res.status(403).json({ ok: false, message: "Solo administradores pueden realizar esta acción" });
     return null;
   }

@@ -2,19 +2,12 @@ import { useNavigate } from 'react-router-dom';
 import '../assets/styles/Header.css';
 import logo from '../assets/img/CoraLogo.png';
 import adminIcon from '../assets/img/icons/file.svg';
+import { getStoredUser, isAdminUser } from '../lib/authSession';
 
-function getCurrentUser() {
-  try {
-    return JSON.parse(localStorage.getItem('user') || 'null');
-  } catch {
-    return null;
-  }
-}
-
-const Header = () => {
+const Header = ({ user }) => {
   const navigate = useNavigate();
-  const user = getCurrentUser();
-  const isAdmin = user?.rol === 2;
+  const currentUser = user || getStoredUser();
+  const isAdmin = isAdminUser(currentUser);
 
   return (
     <header className="main-header">

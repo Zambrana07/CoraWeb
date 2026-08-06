@@ -66,7 +66,7 @@ router.post("/register", async (req, res) => {
     return res.status(201).json({
       ok: true,
       id: inserted[0].id,
-      rol: inserted[0].rol_id,
+      rol: Number(inserted[0].rol_id),
     });
   } catch (err) {
     console.error("Error creando usuario:", err);
@@ -105,7 +105,7 @@ router.post("/login", async (req, res) => {
     return res.status(200).json({
       ok: true,
       id: usuario[0].id,
-      rol: usuario[0].rol_id,
+      rol: Number(usuario[0].rol_id),
     });
   } catch (err) {
     return res.status(500).json({

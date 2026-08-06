@@ -6,7 +6,7 @@ import 'leaflet/dist/leaflet.css';
 import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap, useMapEvents, CircleMarker, Pane, Polyline } from 'react-leaflet';
 import CoraFeedbackModal from './CoraFeedbackModal.jsx';
 import { supabase } from '../lib/supabaseClient';
-import { getStoredUser } from '../lib/authSession';
+import { getStoredUser, isAdminRole } from '../lib/authSession';
 
 // AgenteCora: analisis de riesgo del formulario y revision de imagenes
 import { analyzeReport } from '../agent/agenteCora';
@@ -123,8 +123,7 @@ function MyMapComponent() {
     const showFeedback = (payload) => setFeedback(payload);
     const storedUser = getStoredUser();
     const USER_ID = storedUser?.id;
-    const USER_ROL = storedUser?.rol;
-    const isAdmin = USER_ROL === 2;
+    const isAdmin = isAdminRole(storedUser?.rol);
     const location = useLocation();
     const navigate = useNavigate();
     const focusPoint = location.state?.focus;
