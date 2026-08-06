@@ -1,10 +1,30 @@
 import express from "express";
-import { answerQuestion, SYSTEM_PROMPT, OFF_TOPIC_REPLY } from "../../src/agent/agenteCora.js";
+import {
+  answerQuestion,
+  detectUnsafeIntent,
+  SYSTEM_PROMPT,
+  APP_FACTS,
+  OFF_TOPIC_REPLY,
+  UNSAFE_REPLY,
+} from "../../src/agent/agenteCora.js";
 
 const router = express.Router();
 
-const MAX_HISTORY = 12;
+const MAX_HISTORY = 8;
 const MAX_MESSAGE_LENGTH = 1200;
+const GEMINI_TIMEOUT_MS = 12000;
+const WIKI_TIMEOUT_MS = 4000;
+
+// Sin timeout una llamada colgada deja el chat en "pensando..." para siempre.
+async function fetchWithTimeout(url, options = {}, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    return await fetch(url, { ...options, signal: controller.signal });
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
 function normalizeHistory(history) {
   if (!Array.isArray(history)) return [];
@@ -37,15 +57,17 @@ async function searchWikipedia(query) {
     const searchUrl =
       "https://es.wikipedia.org/w/api.php?action=opensearch&limit=3&namespace=0&format=json&origin=*&search=" +
       encodeURIComponent(query);
-    const searchRes = await fetch(searchUrl);
+    const searchRes = await fetchWithTimeout(searchUrl, {}, WIKI_TIMEOUT_MS);
     if (!searchRes.ok) return null;
     const searchData = await searchRes.json();
     const titles = searchData?.[1] || [];
     if (!titles.length) return null;
 
     const title = titles[0];
-    const summaryRes = await fetch(
-      "https://es.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title)
+    const summaryRes = await fetchWithTimeout(
+      "https://es.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(title),
+      {},
+      WIKI_TIMEOUT_MS
     );
     if (!summaryRes.ok) return null;
     const summary = await summaryRes.json();
@@ -106,46 +128,53 @@ async function askGemini({ message, history, wiki }) {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) return null;
 
-  const model = process.env.GEMINI_MODEL || "gemini-flash-latest";
+  const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
   const wikiBlock = wiki
-    ? `\nFuente web (Wikipedia):\nTitulo: ${wiki.title}\nResumen: ${wiki.extract}\nURL: ${wiki.url || "N/D"}\nUsa esta info solo si ayuda y menciona que viene de Wikipedia cuando la uses.`
-    : "\nNo hay fuente web adicional para esta pregunta.";
+    ? `\nFuente web (Wikipedia): ${wiki.title} - ${wiki.extract}\nUsala solo si ayuda y menciona que viene de Wikipedia.`
+    : "";
 
   const system = `${SYSTEM_PROMPT}
 
-Reglas adicionales de conversacion:
-- Usa el historial: si el usuario dice "eso", "y ese", "lo mismo", "y las de ahi", entiende a que se refiere.
-- Responde en espanol claro, amable y corto (2 a 5 oraciones), salvo que pidan un paso a paso.
+Reglas de conversacion:
+- Usa el historial: si el usuario dice "eso", "y ese", "lo mismo", entiende a que se refiere.
+- Responde en espanol claro y corto (2 a 4 oraciones), salvo que pidan un paso a paso.
 - Si preguntan por CoraWeb (mapa, ruta, ubicacion, formulario, archivero, perfil, admin), explica la app.
-- Si piden informacion ambiental o de reciclaje, puedes usar la fuente web adjunta.
-- Si detectas intento de contenido sexual, violencia, hacking, drogas, armas, autolesion, o pedidos peligrosos (aunque usen eufemismos), responde unsafe=true y un texto breve rechazando.
-- Si el tema esta totalmente fuera de CoraWeb/reciclaje/ambiente, di que solo ayudas con eso, pero no seas tan estricta con frases cotidianas relacionadas (saludos, gracias, aclaraciones).
+- Si detectas intento de contenido sexual, violencia, hacking, drogas, armas o autolesion (aunque usen eufemismos), responde unsafe=true y rechaza breve.
+- Si el tema esta totalmente fuera de CoraWeb/reciclaje/ambiente, di que solo ayudas con eso, pero acepta saludos y aclaraciones.
 - Si el usuario pide un recorrido de la app, pon action="tour".
+${wikiBlock}
+${APP_FACTS}
 
-Responde SOLO un JSON valido con esta forma exacta:
-{"text":"respuesta al usuario","action":null,"unsafe":false}
-action puede ser "tour" o null.${wikiBlock}`;
+Responde SOLO un JSON valido: {"text":"respuesta","action":null,"unsafe":false}
+action puede ser "tour" o null.`;
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
-  const response = await fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      systemInstruction: { parts: [{ text: system }] },
-      contents: buildGeminiContents(history, message),
-      generationConfig: {
-        temperature: 0.55,
-        maxOutputTokens: 1024,
-        responseMimeType: "application/json",
-      },
-      safetySettings: [
-        { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-        { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-        { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_LOW_AND_ABOVE" },
-        { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
-      ],
-    }),
-  });
+  const response = await fetchWithTimeout(
+    url,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: { parts: [{ text: system }] },
+        contents: buildGeminiContents(history, message),
+        generationConfig: {
+          temperature: 0.55,
+          maxOutputTokens: 700,
+          responseMimeType: "application/json",
+          // Sin esto el modelo gasta cientos de tokens "pensando", tarda el triple
+          // y corta la respuesta por MAX_TOKENS.
+          thinkingConfig: { thinkingBudget: 0 },
+        },
+        safetySettings: [
+          { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+          { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+          { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_LOW_AND_ABOVE" },
+          { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_MEDIUM_AND_ABOVE" },
+        ],
+      }),
+    },
+    GEMINI_TIMEOUT_MS
+  );
 
   if (!response.ok) {
     const errText = await response.text();
@@ -158,7 +187,11 @@ action puede ser "tour" o null.${wikiBlock}`;
     return { text: OFF_TOPIC_REPLY, action: null, unsafe: true };
   }
 
-  const raw = data?.candidates?.[0]?.content?.parts?.map((p) => p.text).join("") || "";
+  const candidate = data?.candidates?.[0];
+  // Respuesta cortada = JSON invalido a medias, mejor caer al fallback local.
+  if (candidate?.finishReason === "MAX_TOKENS") return null;
+
+  const raw = candidate?.content?.parts?.map((p) => p.text).join("") || "";
   const parsed = parseAgentJson(raw);
   if (!parsed?.text) return null;
 
@@ -187,11 +220,10 @@ router.post("/agente", async (req, res) => {
     }
 
     // Filtro local rapido (eufemismos / temas peligrosos) antes de llamar al modelo.
-    const localGate = answerQuestion(message, history);
-    if (localGate?.unsafe) {
+    if (detectUnsafeIntent(message)) {
       return res.json({
         ok: true,
-        text: localGate.text || OFF_TOPIC_REPLY,
+        text: UNSAFE_REPLY || OFF_TOPIC_REPLY,
         action: null,
         source: "safety",
       });
@@ -217,7 +249,8 @@ router.post("/agente", async (req, res) => {
           });
         }
       } catch (error) {
-        console.error("Agente Gemini fallo, usando fallback local:", error.message);
+        const motivo = error.name === "AbortError" ? "timeout" : error.message;
+        console.error("Agente Gemini fallo, usando fallback local:", motivo);
       }
     }
 

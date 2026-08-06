@@ -11,6 +11,16 @@ Si detectas un pedido indebido aunque use eufemismos, rechazalo con firmeza y am
 Cuando el usuario complete un formulario: analiza riesgo y recomienda.
 Prioriza seguridad ambiental y humana.`;
 
+// Nombres exactos de la interfaz. Sin esto el modelo inventa botones que no existen.
+export const APP_FACTS = `Interfaz real de CoraWeb. Cita SIEMPRE estos nombres exactos y NUNCA inventes otros:
+- Boton "Activar ubicacion" (arriba del mapa): muestra tu posicion en tiempo real. Se convierte en "Desactivar ubicacion".
+- Boton "Ver ruta hasta aqui": aparece dentro del globo al hacer clic en un punto del mapa. Traza la ruta caminando.
+- Boton "Eliminar punto": solo lo ven los administradores, dentro del globo del punto, y pide confirmacion.
+- Reportar un punto: haz clic en cualquier parte del mapa y se abre el formulario. Los datos van a la izquierda y las fotos a la derecha.
+- Las fotos se revisan automaticamente y se rechazan si tienen contenido no adecuado.
+- "Archivero": historial de todos los reportes con comentarios. "Perfil": tus datos y tus reportes.
+CoraWeb es una pagina web, no una app de telefono: la ubicacion se activa con el boton "Activar ubicacion" y el permiso del navegador, no en los ajustes del telefono.`;
+
 export const OFF_TOPIC_REPLY =
   "Lo siento, solo puedo ayudar con temas relacionados con CoraWeb y gestion de residuos.";
 

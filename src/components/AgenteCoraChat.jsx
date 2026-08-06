@@ -3,6 +3,9 @@ import { CONVERSATION_STARTERS } from "../agent/agenteCora";
 import coraLogo from "../assets/img/Cora-Agent.png";
 import "../assets/styles/AgenteCora.css";
 
+// Corte de seguridad: el backend tarda como maximo ~13s, si pasa de esto algo se colgo.
+const REQUEST_TIMEOUT_MS = 20000;
+
 const WELCOME = {
   from: "bot",
   text: "Hola, soy AgenteCora. Te ayudo con reciclaje, clasificacion de residuos, niveles de riesgo y el uso de CoraWeb. Tambien puedo buscar info ambiental confiable cuando la necesites. En que te ayudo?",
@@ -32,11 +35,15 @@ function AgenteCoraChat() {
     setInput("");
     setLoading(true);
 
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
     try {
       const response = await fetch("/api/agente", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: text, history }),
+        signal: controller.signal,
       });
       const data = await response.json();
 
@@ -51,15 +58,19 @@ function AgenteCoraChat() {
         setOpen(false);
         setTimeout(() => window.dispatchEvent(new CustomEvent("cora-start-tour")), 300);
       }
-    } catch {
+    } catch (error) {
       setMessages((prev) => [
         ...prev,
         {
           from: "bot",
-          text: "Tuve un problema de conexion. Revisa que el backend este corriendo e intentalo otra vez.",
+          text:
+            error?.name === "AbortError"
+              ? "Me tarde demasiado en responder. Intentalo de nuevo con una pregunta mas corta."
+              : "Tuve un problema de conexion. Revisa que el backend este corriendo e intentalo otra vez.",
         },
       ]);
     } finally {
+      clearTimeout(timer);
       setLoading(false);
     }
   };
