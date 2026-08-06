@@ -17,12 +17,15 @@ const CLASS_LABELS = {
 let modelPromise = null;
 
 // El modelo pesa varios MB, por eso se carga bajo demanda la primera vez que se sube una foto.
-// Si la dependencia no está disponible, se desactiva la revisión automática para no romper la app.
+// Se importa solo MobileNetV2 para no arrastrar los otros modelos de NSFWJS al bundle.
 function loadModel() {
   if (!modelPromise) {
-    modelPromise = import("nsfwjs/core")
-      .then((core) => core.load("MobileNetV2", { modelDefinitions: [] }))
-      .catch(() => ({ classify: async () => [] }));
+    modelPromise = Promise.all([
+      import("nsfwjs/core"),
+      import("nsfwjs/models/mobilenet_v2"),
+    ]).then(([core, mobilenet]) =>
+      core.load("MobileNetV2", { modelDefinitions: [mobilenet.MobileNetV2Model] })
+    );
   }
   return modelPromise;
 }

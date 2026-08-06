@@ -3,9 +3,10 @@ import { useState, useEffect, useRef, memo } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap, useMapEvents, Circle, CircleMarker, Pane, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap, useMapEvents, CircleMarker, Pane, Polyline } from 'react-leaflet';
 import CoraFeedbackModal from './CoraFeedbackModal.jsx';
 import { supabase } from '../lib/supabaseClient';
+import { getStoredUser } from '../lib/authSession';
 
 // AgenteCora: analisis de riesgo del formulario y revision de imagenes
 import { analyzeReport } from '../agent/agenteCora';
@@ -120,7 +121,10 @@ function MyMapComponent() {
     const [feedback, setFeedback] = useState(null);
     const closeFeedback = () => setFeedback(null);
     const showFeedback = (payload) => setFeedback(payload);
-    const USER_ID = JSON.parse(localStorage.getItem("user")).id;
+    const storedUser = getStoredUser();
+    const USER_ID = storedUser?.id;
+    const USER_ROL = storedUser?.rol;
+    const isAdmin = USER_ROL === 2;
     const location = useLocation();
     const navigate = useNavigate();
     const focusPoint = location.state?.focus;
@@ -138,6 +142,7 @@ function MyMapComponent() {
     const [revisandoImagenes, setRevisandoImagenes] = useState(false);
     const [route, setRoute] = useState(null);
     const [routeLoadingId, setRouteLoadingId] = useState(null);
+    const [deletingId, setDeletingId] = useState(null);
     const [locationEnabled, setLocationEnabled] = useState(() => {
         return localStorage.getItem("locationEnabled") === "true";
     });
@@ -508,6 +513,53 @@ function MyMapComponent() {
             setRouteLoadingId(null);
         }
     };
+
+    const eliminarReporteAdmin = async (reporteId) => {
+        setDeletingId(reporteId);
+        try {
+            const response = await fetch(`/api/admin/reportes/${reporteId}`, {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ usuarioId: USER_ID }),
+            });
+            const data = await response.json();
+
+            if (!data.ok) {
+                throw new Error(data.message || "No se pudo eliminar el reporte");
+            }
+
+            setCustomMarkers((current) => current.filter((item) => item.id !== reporteId));
+            if (route?.id === reporteId) setRoute(null);
+
+            showFeedback({
+                variant: 'success',
+                title: 'Punto eliminado',
+                message: 'El reporte se eliminó correctamente del mapa.',
+                confirmLabel: 'Perfecto',
+            });
+        } catch (error) {
+            showFeedback({
+                variant: 'error',
+                title: 'No se pudo eliminar',
+                message: error.message || 'Hubo un error al eliminar el punto.',
+                confirmLabel: 'Entendido',
+            });
+        } finally {
+            setDeletingId(null);
+        }
+    };
+
+    const requestEliminarReporte = (marker) => {
+        showFeedback({
+            variant: 'confirm',
+            title: 'Eliminar punto',
+            message: `¿Seguro que quieres eliminar el reporte de ${marker.region}? Esta acción no se puede deshacer.`,
+            confirmLabel: 'Sí, eliminar',
+            cancelLabel: 'Cancelar',
+            onConfirm: () => eliminarReporteAdmin(marker.id),
+        });
+    };
+
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         if (!formData.amount) {
@@ -680,20 +732,9 @@ function MyMapComponent() {
                     </>
                 )}
 
-                {/* precisión */}
+                {/* Marcador de ubicacion del usuario (sin circulo de precision) */}
                 {userPosition && (
                     <Pane name="user-layer" style={{ zIndex: 1000 }}>
-                        <Circle
-                            center={userPosition}
-                            radius={locationAccuracy || 50}
-                            pathOptions={{
-                                color: "#2A93EE",
-                                fillColor: "#2A93EE",
-                                fillOpacity: 0.15,
-                                weight: 1,
-                            }}
-                        />
-
                         <CircleMarker
                             center={userPosition}
                             radius={8}
@@ -933,6 +974,18 @@ function MyMapComponent() {
                                 >
                                     {routeLoadingId === marker.id ? 'Trazando ruta...' : 'Ver ruta hasta aquí'}
                                 </button>
+
+                                {isAdmin && (
+                                    <button
+                                        type="button"
+                                        className="cora-btn cora-btn--danger"
+                                        style={{ width: '100%', marginTop: '8px' }}
+                                        disabled={deletingId === marker.id}
+                                        onClick={() => requestEliminarReporte(marker)}
+                                    >
+                                        {deletingId === marker.id ? 'Eliminando...' : 'Eliminar punto'}
+                                    </button>
+                                )}
                             </Popup>
                         </Marker>
                     );

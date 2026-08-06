@@ -32,7 +32,6 @@ export default function CoraFeedbackModal({
   const handlePrimary = async () => {
     if (isConfirm && onConfirm) {
       await onConfirm();
-      onClose?.();
       return;
     }
     onClose?.();
