@@ -12,6 +12,7 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  margin-bottom: 20vh;
 }
 
 .archivero-page::before {
@@ -176,6 +177,7 @@
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
+  margin-bottom: 20vh;
 }
 
 .archivero-list-item {
@@ -263,6 +265,7 @@
     0 24px 60px rgba(4, 80, 79, 0.28),
     0 0 0 1px rgba(255, 255, 255, 0.5) inset;
   animation: archivero-slide-up 0.3s ease;
+  z-index: 2001;
 }
 
 .archivero-modal-close {
@@ -316,6 +319,30 @@
     rgba(4, 80, 79, 0.55) 100%
   );
   pointer-events: none;
+}
+
+.archivero-modal-gallery {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.8rem;
+  padding: 0.85rem 1rem 0;
+  background: rgba(255, 255, 255, 0);
+  margin-top: -0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.archivero-modal-thumb {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 12px;
+  border: 1px solid rgba(4, 80, 79, 0.14);
+}
+
+@media (max-width: 640px) {
+  .archivero-modal-gallery {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 .archivero-modal-region-badge {

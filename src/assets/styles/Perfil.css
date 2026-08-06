@@ -1,0 +1,305 @@
+body {
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  background-color: white;
+}
+
+.profile-container {
+  height: 100vh;
+  margin: auto;
+  background-color: white;
+  overflow-y: auto;
+}
+
+/* HEADER */
+.header {
+  position: relative;
+  background-color: #FFFDEA;
+  height: 180px;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+}
+.header {
+  background-position: center;
+  background-size: cover;
+}
+
+.avatar {
+  position: absolute;
+  bottom: -40px;
+  left: 20px;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  border: 4px solid #dcdcd2;
+  background-color: #ccc;
+  overflow: hidden;
+}
+
+/* STATS */
+.stats {
+  position: absolute;
+  bottom: -20px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.stats div {
+  background-color: #A7BD8A;
+  padding: 8px 12px;
+  border-radius: 20px;
+  text-align: center;
+  min-width: 70px;
+}
+
+.stats strong {
+  display: block;
+  font-size: 16px;
+}
+
+.stats span {
+  font-size: 12px;
+}
+
+/* CONTENT */
+.content {
+  padding: 60px 20px 20px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 28px;
+  color: #2f4f4f;
+}
+
+section {
+  margin-top: 20px;
+}
+
+h2 {
+  margin-bottom: 5px;
+  color: #2f4f4f;
+}
+
+p {
+  font-size: 14px;
+  color: #333;
+}
+
+/* POSTS */
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 15px;
+  margin-top: 10px;
+  margin-bottom: 200px;
+}
+
+.post-card {
+  border: 2px solid #a8b7b3;
+  border-radius: 10px;
+  position: relative;
+  background-color: #fffffd;
+  height: 47vh;
+  min-height: 300px;
+  max-height: 500px;
+  overflow: auto;
+  overflow-x: hidden;
+  padding-inline: 12px;
+}
+.post-card::-webkit-scrollbar {
+  width: 0;
+}
+
+.post-actions {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 6px;
+  background-color: #FFFDEA;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 12px;
+}
+.post-actions span {
+  justify-content: center;
+  text-align: center;
+  width: 20px;
+  border-radius: 3px;
+  user-select: none;
+}
+.post-actions span + span:hover{
+    background-color: #ff5b5b;
+}
+.post-actions span + span:active{
+    background-color: #ff9a9a;
+}
+.post-actions span:hover{
+    background-color: #888888;
+    cursor: pointer;
+}
+.post-actions span:active{
+    background-color: #afafaf;
+}
+
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.verification-status {
+  background-color: #00978D;
+  color: white;
+  padding: 4px 8px;
+  border-radius: 5px;
+  font-size: 12px;
+  width: fit-content;
+  margin-block: 10px;
+    user-select: none;
+}
+.verification-status.unverified{
+  background-color: #7a7a7a;
+}
+
+.mini-map-wrapper {
+  height: 80px;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 10px;
+  cursor: pointer;
+    user-select: none;
+
+}
+.leaflet-map {
+  height: 100%;
+  width: 100%;
+}
+.post-info {
+  margin-block: 10px;
+    user-select: none;
+
+}
+
+
+
+@media (max-width:980px) {
+  .posts-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+}
+@media (max-width:500px) {
+  .posts-grid {
+  grid-template-columns: repeat(1, 1fr);
+}
+}
+
+.post-archive {
+  position: sticky;
+  width: 48px;
+  bottom: 5px;
+  aspect-ratio: 1/1;
+  justify-content: center;
+  align-content: center;
+  margin-left: auto;
+  background-color: #A7BD8A;
+  padding: 2px 6px;
+  border-radius: 5px;
+  padding: 7px;
+  font-size: 12px;
+    user-select: none;
+
+}
+
+.post-images-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.post-image-preview {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 1px solid #dcdcd2;
+}
+
+@media (max-width: 740px) {
+  .post-images-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 500px) {
+  .post-images-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.post-title {
+  margin: 10px 0 8px;
+  color: #2f4f4f;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.post-description {
+  line-height: 1.5;
+  color: #444;
+  text-align: justify;
+  margin-bottom: 12px;
+}
+
+.post-footer {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #666;
+  border-top: 1px solid #c7c7c7;
+  padding-top: 8px;
+}
+.post-archive:hover {
+  background-color: #7a9c6d;
+  cursor: pointer;
+}
+.post-archive:active {
+  background-color: #9bcd80;
+}
+.post-archive img,
+.archive-icon {
+  width: 100%;
+  filter: invert(0.02);
+  display: block;
+}
+.aboutme{
+  font-weight: 100;
+}
+
+.no-posts-message {
+    width: 100%;
+    text-align: center;
+    align-self: center;
+    font-size: 1.1rem;
+    color: #666;
+    border-radius: 12px;
+    margin-top: 15px;
+}
+#cora-logo-admin {
+  width: 24px;
+  filter:invert(1) drop-shadow(0 0 2px rgba(0, 42, 255, 0.8));
+}
+.edit-profile-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 8px 12px;
+  background-color: #2b8a3e;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

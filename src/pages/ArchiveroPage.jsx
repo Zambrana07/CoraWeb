@@ -1,21 +1,24 @@
 import { useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
+import CoraFeedbackModal from "../components/CoraFeedbackModal";
 import "../assets/styles/ArchiveroPage.css";
 import basura1 from "../assets/img/basura1.jpg";
 import basura2 from "../assets/img/basura2.jpg";
 import basura3 from "../assets/img/basura3.webp";
-import { db } from "../firebase/firebaseConfig";
-import { collection, onSnapshot, query } from "firebase/firestore";
 import { analyzeReport } from "../agent/agenteCora";
 import "../assets/styles/AgenteCora.css";
+import { supabase } from "../lib/supabaseClient";
 
 const imagePool = [basura1, basura2, basura3];
 const allowedRegions = ["Colegio CTP CIT", "Soda armonia"];
 
-const defaultDescription = (name, region) =>
-  `${name} es un punto de recoleccion en ${region}. Reporte verificado por la comunidad Cora.`;
-
+const defaultDescription = (name, region, verified) =>
+  `${name} es un punto de recoleccion en ${region}. ${verified
+    ? "Este punto ha sido verificado por la comunidad."
+    : "Este punto no ha sido verificado por la comunidad."
+  }`;
 const hashStringToIndex = (value, modulo) => {
   const text = String(value || "");
   let hash = 0;
@@ -25,24 +28,31 @@ const hashStringToIndex = (value, modulo) => {
   return hash % modulo;
 };
 
-const commentsStorageKey = (pointId) => `archiveroComments_${pointId}`;
-
-const loadComments = (pointId) => {
+// Comentarios ahora se persisten en el backend (tabla comentarios)
+const fetchCommentsFromApi = async (pointId) => {
   try {
-    const raw = localStorage.getItem(commentsStorageKey(pointId));
-    if (!raw) return [];
-    const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
-  } catch {
+    const res = await fetch(`/api/reportes/${pointId}/comentarios`);
+    if (!res.ok) {
+      const text = await res.text();
+      console.error('fetchComments non-ok response:', res.status, text);
+      return [];
+    }
+
+    const data = await res.json();
+    if (!data.ok) return [];
+    return data.comentarios.map((c) => ({
+      id: c.id,
+      author: c.usuario_nombre || 'Anonimo',
+      text: c.comentario,
+      createdAt: c.fecha_creacion,
+    }));
+  } catch (err) {
+    console.error('Error fetching comments:', err);
     return [];
   }
 };
 
-const saveComments = (pointId, comments) => {
-  localStorage.setItem(commentsStorageKey(pointId), JSON.stringify(comments));
-};
-
-const carouselSections = ["Carrusel principal", "Puntos frecuentes", "Agregados recientemente"];
+const carouselSections = ["Principal", "Puntos frecuentes", "Agregados recientemente"];
 const regionOptions = allowedRegions;
 const getItemsPerView = () => {
   if (window.innerWidth <= 640) {
@@ -54,10 +64,77 @@ const getItemsPerView = () => {
   return 3;
 };
 
+function formatReporte(reporte) {
+  const region = allowedRegions.includes(reporte.region_name)
+    ? reporte.region_name
+    : "Colegio CTP CIT";
+
+  const name = reporte.reportado_por ? `Reporte de ${reporte.reportado_por}` : "Reporte sin nombre";
+  const createdAt = reporte.fecha_creacion ? new Date(reporte.fecha_creacion).getTime() : null;
+
+  const point = {
+    id: reporte.id,
+    name,
+    region,
+    imagenes: reporte.imagenes || [],
+    image: (reporte.imagenes && reporte.imagenes.length > 0)
+      ? reporte.imagenes[0]
+      : imagePool[hashStringToIndex(reporte.id, imagePool.length)],
+    wasteType: reporte.tipo_residuo,
+    verified: reporte.verificado || false,
+    amount: reporte.cantidad,
+    slope: reporte.pendiente,
+    waterProximity: reporte.cercania_agua,
+    riskLevel: reporte.riesgo_contaminacion,
+    materialType: reporte.clasificacion_material,
+    position: reporte.latitud != null && reporte.longitud != null ? [reporte.latitud, reporte.longitud] : null,
+    createdAt,
+  };
+
+  point.description = defaultDescription(point.name, region, point.verified);
+  point.analysis = analyzeReport(point);
+  return point;
+}
+
 function PointDetailModal({ point, onClose }) {
   const [commentAuthor, setCommentAuthor] = useState("");
   const [commentText, setCommentText] = useState("");
-  const [comments, setComments] = useState(() => loadComments(point.id));
+  const [comments, setComments] = useState([]);
+  const [perfil, setPerfil] = useState(null);
+  const [feedback, setFeedback] = useState(null);
+  const closeFeedback = () => setFeedback(null);
+  const showFeedback = (payload) => setFeedback(payload);
+  const USER_ID = JSON.parse(localStorage.getItem("user")).id;
+  const USER_ROL = JSON.parse(localStorage.getItem("user")).rol;
+
+  useEffect(() => {
+    const cargarPerfil = async () => {
+      try {
+        const response = await fetch(
+          "/api/load-perfil",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              id: USER_ID,
+            }),
+          }
+        );
+
+        const data = await response.json();
+
+        if (data.perfil) {
+          setPerfil(data.perfil);
+          setCommentAuthor(data.perfil.nombre || "");
+        }
+      } catch (error) {
+      }
+    };
+
+    cargarPerfil();
+  }, [USER_ID]);
 
   useEffect(() => {
     const handleKeyDown = (event) => {
@@ -65,11 +142,18 @@ function PointDetailModal({ point, onClose }) {
     };
     document.body.style.overflow = "hidden";
     window.addEventListener("keydown", handleKeyDown);
+
+    // cargar comentarios desde backend
+    (async () => {
+      const loaded = await fetchCommentsFromApi(point.id);
+      setComments(loaded);
+    })();
+
     return () => {
       document.body.style.overflow = "";
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [onClose]);
+  }, [onClose, point.id]);
 
   const handleSubmitComment = (event) => {
     event.preventDefault();
@@ -77,16 +161,40 @@ function PointDetailModal({ point, onClose }) {
     const author = commentAuthor.trim() || "Anonimo";
     if (!text) return;
 
-    const newComment = {
-      id: Date.now(),
-      author,
-      text,
-      createdAt: new Date().toISOString(),
-    };
-    const updated = [newComment, ...comments];
-    setComments(updated);
-    saveComments(point.id, updated);
-    setCommentText("");
+    (async () => {
+      try {
+        const res = await fetch(`/api/reportes/${point.id}/comentarios`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ usuarioId: USER_ID, comentario: text }),
+        });
+        if (!res.ok) {
+          const txt = await res.text();
+          throw new Error(`HTTP ${res.status}: ${txt}`);
+        }
+        const data = await res.json();
+        if (!data.ok) throw new Error(data.message || 'Error creando comentario');
+
+        const created = data.comentario;
+        const newComment = {
+          id: created.id,
+          author: created.usuario_nombre || author,
+          text: created.comentario,
+          createdAt: created.fecha_creacion,
+        };
+
+        setComments((c) => [newComment, ...c]);
+        setCommentText("");
+      } catch (err) {
+        console.error('Error creando comentario:', err);
+        showFeedback({
+          variant: 'error',
+          title: 'Error al comentar',
+          message: 'No se pudo publicar el comentario',
+          confirmLabel: 'Entendido'
+        });
+      }
+    })();
   };
 
   return (
@@ -108,7 +216,21 @@ function PointDetailModal({ point, onClose }) {
           <span className="archivero-modal-region-badge">{point.region}</span>
         </div>
 
+        
+
         <div className="archivero-modal-body">
+          {point.imagenes && point.imagenes.length > 1 && (
+          <div className="archivero-modal-gallery">
+            {point.imagenes.slice(0, 4).map((src, idx) => (
+              <img
+                key={idx}
+                className="archivero-modal-thumb"
+                src={src}
+                alt={`Imagen ${idx + 2} de ${point.name}`}
+              />
+            ))}
+          </div>
+        )}
           <header className="archivero-modal-header">
             <h2 id="archivero-modal-title" className="archivero-modal-title nature-title">
               {point.name}
@@ -157,9 +279,19 @@ function PointDetailModal({ point, onClose }) {
               <input
                 type="text"
                 className="archivero-comment-input"
-                placeholder="Tu nombre (opcional)"
+                placeholder="Tu nombre"
                 value={commentAuthor}
-                onChange={(event) => setCommentAuthor(event.target.value)}
+                readOnly={!!perfil?.nombre}
+                style={
+                  perfil?.nombre
+                    ? {
+                      backgroundColor: "#f3f4f6",
+                      color: "#666",
+                      cursor: "default",
+                      border: "1px solid #d1d5db"
+                    }
+                    : {}
+                }
               />
               <textarea
                 className="archivero-comment-textarea"
@@ -201,6 +333,10 @@ function PointDetailModal({ point, onClose }) {
 }
 
 function ArchiveroPage() {
+  const location = useLocation();
+
+  const targetPointId = location.state?.pointId;
+
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRegion, setSelectedRegion] = useState("all");
   const [selectedPoint, setSelectedPoint] = useState(null);
@@ -211,42 +347,97 @@ function ArchiveroPage() {
   const [firebasePoints, setFirebasePoints] = useState([]);
 
   useEffect(() => {
-    const reportesRef = collection(db, "reportes");
-    const q = query(reportesRef);
-    const unsubscribe = onSnapshot(
-      q,
-      (querySnapshot) => {
-        const puntos = [];
-        querySnapshot.forEach((docSnap) => {
-          const data = docSnap.data();
-          const region = allowedRegions.includes(data.region) ? data.region : "Colegio CTP CIT";
-          const name = data.reportado_por ? `Reporte de ${data.reportado_por}` : "Reporte sin nombre";
+    if (!targetPointId || firebasePoints.length === 0) return;
+
+    const point = firebasePoints.find(
+      (p) => p.id === targetPointId
+    );
+
+    if (point) {
+      setSelectedPoint(point);
+    }
+  }, [targetPointId, firebasePoints]);
+
+  useEffect(() => {
+    const cargarPuntos = async () => {
+      try {
+        const response = await fetch("/api/reportes");
+        const data = await response.json();
+
+        if (!data.ok) {
+          throw new Error(data.message || "Error al cargar puntos");
+        }
+
+        const puntos = data.reportes.map((reporte) => {
+          const region = allowedRegions.includes(reporte.region_name)
+            ? reporte.region_name
+            : "Colegio CTP CIT";
+
+          const name = reporte.reportado_por ? `Reporte de ${reporte.reportado_por}` : "Reporte sin nombre";
+          const createdAt = reporte.fecha_creacion ? new Date(reporte.fecha_creacion).getTime() : null;
+
           const point = {
-            id: docSnap.id,
+            id: reporte.id,
             name,
             region,
-            image: imagePool[hashStringToIndex(docSnap.id, imagePool.length)],
-            wasteType: data.tipo_residuo,
-            amount: data.cantidad,
-            slope: data.pendiente,
-            waterProximity: data.cercania_agua,
-            riskLevel: data.riesgo_contaminacion,
-            materialType: data.clasificacion_material,
-            position: data.latitud && data.longitud ? [data.latitud, data.longitud] : null,
-            createdAt: data.fecha_creacion?.seconds ? data.fecha_creacion.seconds * 1000 : null,
+            imagenes: reporte.imagenes || [],
+            image: (reporte.imagenes && reporte.imagenes.length > 0)
+              ? reporte.imagenes[0]
+              : imagePool[hashStringToIndex(reporte.id, imagePool.length)],
+            wasteType: reporte.tipo_residuo,
+            verified: reporte.verificado || false,
+            amount: reporte.cantidad,
+            slope: reporte.pendiente,
+            waterProximity: reporte.cercania_agua,
+            riskLevel: reporte.riesgo_contaminacion,
+            materialType: reporte.clasificacion_material,
+            position: reporte.latitud != null && reporte.longitud != null ? [reporte.latitud, reporte.longitud] : null,
+            createdAt,
           };
-          point.description = defaultDescription(point.name, region);
+
+          point.description = defaultDescription(point.name, region, point.verified);
           point.analysis = analyzeReport(point);
-          puntos.push(point);
+          return point;
         });
+
         puntos.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
         setFirebasePoints(puntos);
-      },
-      (error) => {
-        console.error("Error al leer puntos de Firebase:", error);
-      },
-    );
-    return () => unsubscribe();
+      } catch (error) {
+      }
+    };
+
+    cargarPuntos();
+
+    const channel = supabase
+      .channel('reportes-realtime')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'reportes' }, (payload) => {
+        const eventType = payload.eventType || payload.event || payload.type;
+        const reporte = payload.record || payload.new || null;
+        const oldReporte = payload.old_record || payload.old || null;
+
+        if (eventType === 'INSERT' && reporte?.id) {
+          setFirebasePoints((current) => {
+            const nuevo = formatReporte(reporte);
+            return [nuevo, ...current.filter((item) => item.id !== nuevo.id)];
+          });
+        }
+        if (eventType === 'UPDATE' && reporte?.id) {
+          setFirebasePoints((current) =>
+            current.map((item) => (item.id === reporte.id ? formatReporte(reporte) : item))
+          );
+        }
+        if (eventType === 'DELETE' && oldReporte?.id) {
+          setFirebasePoints((current) => current.filter((item) => item.id !== oldReporte.id));
+        }
+      });
+
+    channel.subscribe();
+
+    return () => {
+      if (channel) {
+        supabase.removeChannel(channel);
+      }
+    };
   }, []);
 
   const mergedPoints = firebasePoints;
@@ -286,7 +477,6 @@ function ArchiveroPage() {
 
   return (
     <div className="archivero-page page-transition">
-      <Header />
       <div className="archivero-page-content">
         <div className="archivero-search-wrap">
           <input
@@ -395,7 +585,6 @@ function ArchiveroPage() {
       {selectedPoint && (
         <PointDetailModal point={selectedPoint} onClose={() => setSelectedPoint(null)} />
       )}
-      <Footer />
     </div>
   );
 }

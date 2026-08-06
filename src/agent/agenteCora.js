@@ -32,7 +32,7 @@ export const CONVERSATION_STARTERS = [
 export const RISK_VALUES = {
   wasteType: { organico: 5, papel: 3, carton: 3, vidrio: 8, plastico: 12, metal: 10 },
   slope: { plano: 2, leve: 6, pronunciada: 12, intensa: 18 },
-  waterProximity: { "\u02C250m": 25, "\u2265100m": 12, "\u2265500m": 4 },
+  waterProximity: { "˂50m": 25, "≥100m": 12, "≥500m": 4 },
   riskLevel: { bajo: 5, medio: 15, alto: 30 },
   materialType: { reciclable: 3, "no reciclable": 12 },
 };
@@ -83,18 +83,71 @@ const BASE_RECOMMENDATION = {
   rojo: "Riesgo alto: requiere atencion prioritaria y manejo cuidadoso.",
 };
 
+// Normaliza valores para evitar inconsistencias (acentos, espacios, símbolos especiales)
+const normalizeWaterProximity = (value) => {
+  if (!value) return value;
+  const str = String(value).trim().toLowerCase();
+  // Detecta qué rango es sin depender del símbolo exacto
+  if (str.includes('50') && !str.includes('100') && !str.includes('500')) return '˂50m';
+  if (str.includes('100') && !str.includes('500')) return '≥100m';
+  if (str.includes('500')) return '≥500m';
+  return value;
+};
+
+const normalizeValue = (value, field) => {
+  if (!value) return value;
+  const str = String(value).trim().toLowerCase();
+  
+  switch(field) {
+    case 'wasteType':
+      if (str.includes('org')) return 'organico';
+      if (str.includes('pap')) return 'papel';
+      if (str.includes('cart')) return 'carton';
+      if (str.includes('vid')) return 'vidrio';
+      if (str.includes('plast')) return 'plastico';
+      if (str.includes('metal')) return 'metal';
+      break;
+    case 'slope':
+      if (str === 'plano') return 'plano';
+      if (str === 'leve') return 'leve';
+      if (str.includes('pronun')) return 'pronunciada';
+      if (str.includes('intent') || str.includes('intensa')) return 'intensa';
+      break;
+    case 'riskLevel':
+      if (str === 'bajo') return 'bajo';
+      if (str === 'medio') return 'medio';
+      if (str === 'alto') return 'alto';
+      break;
+    case 'materialType':
+      if (str.includes('recicl')) return 'reciclable';
+      if (str.includes('no') || str.includes('aprovec')) return 'no reciclable';
+      break;
+  }
+  
+  return str;
+};
+
 // Analiza un reporte/formulario y devuelve nivel, color, explicacion y recomendacion.
 export function analyzeReport(form) {
   if (!form || (!form.wasteType && !form.riskLevel && !form.waterProximity)) {
     return { valid: false, message: NO_DATA_REPLY };
   }
 
+  // Normaliza todos los valores antes de buscar
+  const normalized = {
+    wasteType: normalizeValue(form.wasteType, 'wasteType'),
+    slope: normalizeValue(form.slope, 'slope'),
+    waterProximity: normalizeWaterProximity(form.waterProximity),
+    riskLevel: normalizeValue(form.riskLevel, 'riskLevel'),
+    materialType: normalizeValue(form.materialType, 'materialType'),
+  };
+
   const contributions = {
-    wasteType: RISK_VALUES.wasteType[form.wasteType] ?? 0,
-    slope: RISK_VALUES.slope[form.slope] ?? 0,
-    waterProximity: RISK_VALUES.waterProximity[form.waterProximity] ?? 0,
-    riskLevel: RISK_VALUES.riskLevel[form.riskLevel] ?? 0,
-    materialType: RISK_VALUES.materialType[form.materialType] ?? 0,
+    wasteType: RISK_VALUES.wasteType[normalized.wasteType] ?? 0,
+    slope: RISK_VALUES.slope[normalized.slope] ?? 0,
+    waterProximity: RISK_VALUES.waterProximity[normalized.waterProximity] ?? 0,
+    riskLevel: RISK_VALUES.riskLevel[normalized.riskLevel] ?? 0,
+    materialType: RISK_VALUES.materialType[normalized.materialType] ?? 0,
     amount: amountToScore(form.amount),
   };
 
@@ -347,6 +400,7 @@ export function answerQuestion(text, context = {}) {
     };
   }
 
+<<<<<<< HEAD
   if (has(msg, ["eliminar punto", "borrar punto", "quitar punto", "como borro", "como elimino"])) {
     return {
       text: "Solo puedes eliminar los puntos que tu creaste. Abre el punto en el mapa y usa el boton de eliminar; los puntos de otras personas no se pueden borrar.",
@@ -363,8 +417,17 @@ export function answerQuestion(text, context = {}) {
   if (env) return { text: ENV_TIPS[env] };
 
   if (has(msg, ["ubicacion", "ubicar", "localiz", "mi posicion", "gps", "centrar el mapa"])) {
+=======
+  if (has(msg, ["ruta", "como llego", "como llegar", "direcciones", "camino", "navegar hasta", "ir al punto", "waze", "distancia al punto"])) {
     return {
-      text: "Toca el boton \"Activar mi ubicacion\" arriba a la izquierda y el mapa te lleva a tu posicion actual. Te lo muestro en pantalla.",
+      text: "Activa tu ubicacion, toca el punto que te interesa en el mapa y presiona \"Ver ruta hasta aqui\". Te dibujo el camino a pie con la distancia y el tiempo estimado, y lo quitas cuando quieras con \"Quitar ruta\".",
+    };
+  }
+
+  if (has(msg, ["ubicacion", "ubicar", "localiz", "donde estoy", "mi posicion", "gps", "centrar el mapa"])) {
+>>>>>>> origin/Alexander-archivero
+    return {
+      text: "Toca el boton \"Activar mi ubicacion\" arriba a la izquierda y el mapa te sigue en tiempo real mientras te moves. Te lo muestro en pantalla.",
       action: "tour",
     };
   }

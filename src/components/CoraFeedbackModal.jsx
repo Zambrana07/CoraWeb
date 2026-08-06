@@ -29,9 +29,10 @@ export default function CoraFeedbackModal({
         ? "cora-feedback-btn--danger"
         : "cora-feedback-btn--primary";
 
-  const handlePrimary = () => {
+  const handlePrimary = async () => {
     if (isConfirm && onConfirm) {
-      onConfirm();
+      await onConfirm();
+      onClose?.();
       return;
     }
     onClose?.();
@@ -63,9 +64,8 @@ export default function CoraFeedbackModal({
         <p className="cora-feedback-message">{message}</p>
 
         <div
-          className={`cora-feedback-actions ${
-            isConfirm ? "cora-feedback-actions--row" : ""
-          }`}
+          className={`cora-feedback-actions ${isConfirm ? "cora-feedback-actions--row" : ""
+            }`}
         >
           {isConfirm && (
             <button

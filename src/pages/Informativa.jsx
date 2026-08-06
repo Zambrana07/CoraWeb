@@ -135,7 +135,10 @@ function Informativa() {
 
   return (
     <div className="informativa-page page-transition">
+<<<<<<< HEAD
       <Header />
+=======
+>>>>>>> origin/Alexander-archivero
       <div className="informativa-content">
         <div className="informativa-intro">
           <h1 className="nature-title">Web informativa</h1>
@@ -186,7 +189,10 @@ function Informativa() {
           </div>
         </section>
       </div>
+<<<<<<< HEAD
       <Footer />
+=======
+>>>>>>> origin/Alexander-archivero
     </div>
   );
 }

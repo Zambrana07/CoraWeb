@@ -1,7 +1,11 @@
+<<<<<<< HEAD
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
+=======
+import { useEffect, useRef, useState, useCallback, memo } from "react";
+>>>>>>> origin/Alexander-archivero
 import { answerQuestion, CONVERSATION_STARTERS } from "../agent/agenteCora";
-import coraLogo from "../assets/img/CoraLogo.png";
+import coraLogo from "../assets/img/Cora-Agent.png";
 import "../assets/styles/AgenteCora.css";
 
 const pageFromPath = (pathname) => {
@@ -116,4 +120,4 @@ function AgenteCoraChat() {
   );
 }
 
-export default AgenteCoraChat;
+export default memo(AgenteCoraChat);

@@ -26,6 +26,9 @@ body,
   height: 100% !important; 
   z-index: 1;
 }
+.leaflet-control-container{
+  display: none;
+}
 
 /* Contenedor especializado para agrupar los elementos de la interfaz de usuario sobre el mapa */
 .ui-container {
@@ -90,5 +93,372 @@ body,
 
 .map-container > div {
   height: 100% !important;
+}
+
+/* ===================================================== */
+/* Tema Cora sobre el mapa                                */
+/* ===================================================== */
+
+.cora-btn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: #fff;
+  font-weight: 700;
+  font-size: 0.86rem;
+  cursor: pointer;
+  background: #00978D;
+  box-shadow: 0 3px 0 rgba(4, 80, 79, 0.28);
+  transition: filter 0.15s ease, transform 0.15s ease;
+}
+
+.cora-btn:hover:not(:disabled) {
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.cora-btn:disabled {
+  background: #b7c3bd;
+  box-shadow: none;
+  cursor: not-allowed;
+}
+
+.cora-btn--teal { background: #00978D; }
+.cora-btn--live { background: #4dcec5; color: #04504f; }
+.cora-btn--green { background: #688f35; }
+.cora-btn--sage { background: #a7bd8a; color: #04504f; }
+.cora-btn--danger { background: #a1303c; }
+
+.cora-btn--route {
+  width: 100%;
+  margin-top: 10px;
+  background: linear-gradient(135deg, #00978d 0%, #688f35 100%);
+}
+
+/* Panel flotante principal */
+.cora-map-panel {
+  position: fixed;
+  top: 80px;
+  left: 20px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 240px;
+  max-width: 260px;
+  padding: 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(4, 80, 79, 0.22);
+  background: linear-gradient(160deg, rgba(255, 253, 232, 0.97) 0%, rgba(238, 240, 210, 0.95) 100%);
+  box-shadow: 0 12px 26px rgba(4, 80, 79, 0.22);
+}
+
+.cora-map-panel-title {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.cora-live-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #04504f;
+}
+
+.cora-live-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #2a93ee;
+  box-shadow: 0 0 0 0 rgba(42, 147, 238, 0.6);
+  animation: cora-pulse 1.6s ease-out infinite;
+}
+
+@keyframes cora-pulse {
+  to { box-shadow: 0 0 0 10px rgba(42, 147, 238, 0); }
+}
+
+/* Panel de ruta activa */
+.cora-route-panel {
+  position: fixed;
+  right: 20px;
+  top: 80px;
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 250px;
+  padding: 14px 16px;
+  border-radius: 18px;
+  border: 1px solid rgba(4, 80, 79, 0.22);
+  background: linear-gradient(160deg, rgba(255, 253, 232, 0.97) 0%, rgba(225, 222, 163, 0.94) 100%);
+  box-shadow: 0 12px 26px rgba(4, 80, 79, 0.22);
+  color: #04504f;
+}
+
+.cora-route-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.92rem;
+}
+
+.cora-route-close {
+  border: none;
+  background: transparent;
+  color: #04504f;
+  font-size: 1.3rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cora-route-dest {
+  margin: 0;
+  font-size: 0.82rem;
+  opacity: 0.85;
+}
+
+.cora-route-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.cora-route-stats span {
+  background: #00978d;
+  color: #fff;
+  border-radius: 10px;
+  padding: 3px 9px;
+  font-size: 0.76rem;
+  font-weight: 700;
+}
+
+.cora-route-note {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #6b5a1f;
+}
+
+/* Formulario del reporte en dos columnas */
+.cora-form-popup .leaflet-popup-content-wrapper {
+  border-radius: 18px;
+  border: 1px solid rgba(4, 80, 79, 0.2);
+  background: linear-gradient(165deg, #fffde8 0%, #f4f5e2 100%);
+  box-shadow: 0 14px 30px rgba(4, 80, 79, 0.28);
+}
+
+.cora-form-popup .leaflet-popup-content {
+  margin: 14px;
+}
+
+.cora-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  color: #04504f;
+}
+
+.cora-form-heading {
+  text-align: center;
+  font-size: 0.98rem;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(4, 80, 79, 0.18);
+}
+
+.cora-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  align-items: start;
+}
+
+.cora-form-col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.cora-form label {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #04504f;
+}
+
+.cora-form input[type="text"],
+.cora-form input[type="number"],
+.cora-form select {
+  width: 100%;
+  padding: 7px 9px;
+  border-radius: 8px;
+  border: 1px solid rgba(4, 80, 79, 0.28);
+  background: #fff;
+  color: #04504f;
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.cora-form input:focus,
+.cora-form select:focus {
+  border-color: #00978d;
+  box-shadow: 0 0 0 2px rgba(0, 151, 141, 0.18);
+}
+
+.cora-form input:disabled {
+  background: #eceee0;
+  cursor: not-allowed;
+}
+
+.cora-form-hint {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.35;
+  color: #4a6b52;
+}
+
+.cora-form-submit {
+  width: 100%;
+}
+
+/* Zona de carga de imagenes */
+.cora-dropzone {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 14px 10px;
+  border-radius: 12px;
+  border: 2px dashed rgba(104, 143, 53, 0.55);
+  background: rgba(185, 207, 149, 0.16);
+  cursor: pointer;
+  text-align: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.cora-dropzone:hover {
+  background: rgba(185, 207, 149, 0.3);
+  border-color: #688f35;
+}
+
+.cora-dropzone input {
+  display: none;
+}
+
+.cora-dropzone--full {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.cora-dropzone-icon {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #688f35;
+  line-height: 1;
+}
+
+.cora-dropzone-text {
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #04504f;
+}
+
+.cora-vision-status {
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  color: #04504f;
+  background: rgba(77, 206, 197, 0.28);
+  border: 1px solid rgba(0, 151, 141, 0.35);
+}
+
+.cora-vision-error {
+  border-radius: 8px;
+  padding: 7px 9px;
+  font-size: 0.74rem;
+  line-height: 1.35;
+  color: #fff;
+  background: #a1303c;
+}
+
+.cora-thumbs {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cora-thumb {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px;
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid rgba(4, 80, 79, 0.16);
+}
+
+.cora-thumb img {
+  width: 46px;
+  height: 46px;
+  object-fit: cover;
+  border-radius: 8px;
+}
+
+.cora-thumb-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+
+.cora-thumb-name {
+  font-size: 0.72rem;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cora-thumb-size {
+  font-size: 0.68rem;
+  color: #6b7a6f;
+}
+
+.cora-thumb-remove {
+  border: none;
+  background: #a1303c;
+  color: #fff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .cora-form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cora-form-popup .leaflet-popup-content {
+    width: auto !important;
+    max-width: calc(100vw - 80px);
+  }
+
+  .cora-map-panel,
+  .cora-route-panel {
+    max-width: calc(100vw - 40px);
+  }
+
+  .cora-route-panel {
+    top: auto;
+    bottom: 90px;
+  }
 }
 

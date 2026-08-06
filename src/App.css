@@ -18,6 +18,11 @@
   margin-top: 2rem;
 }
 
+div, span, img, button, br{
+    user-select: none;
+
+}
+
 .carrousel {
   height: 46vh;
   background-color: aquamarine;

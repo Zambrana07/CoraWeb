@@ -16,6 +16,10 @@
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/Alexander-archivero
 }
 
 .informativa-page::before {
@@ -41,6 +45,10 @@
   overflow-x: hidden;
   scrollbar-width: thin;
   scrollbar-color: rgba(4, 80, 79, 0.45) transparent;
+<<<<<<< HEAD
+=======
+    margin-bottom: 10vh;
+>>>>>>> origin/Alexander-archivero
 }
 
 .informativa-intro {
@@ -305,6 +313,11 @@
   display: flex;
   gap: 1rem;
   align-items: stretch;
+<<<<<<< HEAD
+=======
+  margin-bottom: 5vh;
+
+>>>>>>> origin/Alexander-archivero
 }
 
 .informativa-legend-card {

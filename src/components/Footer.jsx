@@ -1,28 +1,22 @@
-import { Link } from 'react-router-dom';
-import '../assets/styles/Footer.css';
+import React from 'react';
+import '../assets/styles/Footer.css'; 
+import HomeIcon from '../assets/img/icons/house-solid-full.svg';
+import ArchiveIcon from '../assets/img/icons/box-archive-solid-full.svg'
+import WebIcon from '../assets/img/icons/globe-solid-full.svg'
+import UsrIcon from '../assets/img/icons/circle-user-solid-full.svg'
 
-import localizacion from '../icons/localizacion.svg';
-import buscar from '../icons/buscar.svg';
-import pfp from '../icons/pfp.svg';
-import info from '../icons/info.svg';
-
-
-const Footer = () => {
+const Footer = ({ style }) => {
   return (
     <footer className="footer" data-tour="footer">
       <nav className="footer-content">
-        <Link className="footer-item" to="/">
-          <span className="footer-icon">
-            <img src={localizacion} alt="Home" />
-          </span>
+        <a className="footer-item" href="/">
+          <span className="footer-icon"><img src={HomeIcon} /></span>
           <span className="footer-label">Home</span>
-        </Link>
-
-        <Link className="footer-item" to="/archivero">
-          <span className="footer-icon">
-            <img src={buscar} alt="Archivero" />
-          </span>
+        </a>
+        <a className="footer-item" href="/archivero">
+          <span className="footer-icon"><img src={ArchiveIcon} /></span>
           <span className="footer-label">Archivero</span>
+<<<<<<< HEAD
         </Link>
 
         <Link className="footer-item" to="/informativa">
@@ -36,8 +30,17 @@ const Footer = () => {
           <span className="footer-icon">
             <img src={pfp} alt="Perfil" />
           </span>
+=======
+        </a>
+        <a className="footer-item" href="/informativa">
+          <span className="footer-icon"><img src={WebIcon} /></span>
+          <span className="footer-label">Web informativa</span>
+        </a>
+        <a className="footer-item" href="/perfil">
+          <span className="footer-icon"><img src={UsrIcon} /></span>
+>>>>>>> origin/Alexander-archivero
           <span className="footer-label">Perfil</span>
-        </Link>
+        </a>
       </nav>
     </footer>
   );
