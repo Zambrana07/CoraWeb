@@ -1,21 +1,21 @@
 // AgenteCora - motor integrado en CoraWeb.
-// Asistente limitado a reciclaje, residuos, clasificacion ambiental y uso de CoraWeb.
-// La logica de abajo implementa, sin dependencias externas, las reglas del system prompt.
+// Asistente de reciclaje, residuos, clasificacion ambiental y uso de CoraWeb.
+// Puede usar historial de conversacion y fuentes web (Wikipedia via backend).
 
 export const SYSTEM_PROMPT = `Tu nombre es AgenteCora.
-Solo respondes temas relacionados con reciclaje, residuos, clasificacion ambiental y uso de la plataforma CoraWeb.
-Si una pregunta no pertenece al contexto responde:
-"Lo siento, solo puedo ayudar con temas relacionados con CoraWeb y gestion de residuos."
-
-Manten respuestas cortas, claras, seguras y educativas.
-Nunca proporciones instrucciones peligrosas ni contenido fuera del contexto ambiental.
-
-Cuando el usuario complete un formulario: analiza las respuestas, calcula el riesgo y devuelve nivel, color, explicacion y recomendacion.
-Si no hay suficiente informacion: "No tengo suficientes datos para determinar el nivel de riesgo."
-Nunca alarmes innecesariamente. Usa lenguaje amigable y educativo. Prioriza la seguridad ambiental y humana.`;
+Ayudas con reciclaje, residuos, clasificacion ambiental y uso de la plataforma CoraWeb.
+Respondes en espanol, corto, claro, amable y educativo.
+Si el usuario habla con referencias ("eso", "y ese", "lo mismo"), usa el historial para entender.
+Nunca des instrucciones peligrosas, sexuales, violentas, ilegales ni de hacking.
+Si detectas un pedido indebido aunque use eufemismos, rechazalo con firmeza y amabilidad.
+Cuando el usuario complete un formulario: analiza riesgo y recomienda.
+Prioriza seguridad ambiental y humana.`;
 
 export const OFF_TOPIC_REPLY =
   "Lo siento, solo puedo ayudar con temas relacionados con CoraWeb y gestion de residuos.";
+
+export const UNSAFE_REPLY =
+  "Eso no lo puedo ayudar. Estoy aqui para reciclaje, ambiente y el uso seguro de CoraWeb. Si tienes una duda de residuos o de la app, preguntame eso.";
 
 export const NO_DATA_REPLY = "No tengo suficientes datos para determinar el nivel de riesgo.";
 
@@ -28,7 +28,6 @@ export const CONVERSATION_STARTERS = [
 ];
 
 // --- VALORES DE RIESGO POR OPCION DEL FORMULARIO ---
-// Cada opcion del formulario de CoraWeb tiene un puntaje de riesgo asignado.
 export const RISK_VALUES = {
   wasteType: { organico: 5, papel: 3, carton: 3, vidrio: 8, plastico: 12, metal: 10 },
   slope: { plano: 2, leve: 6, pronunciada: 12, intensa: 18 },
@@ -83,63 +82,59 @@ const BASE_RECOMMENDATION = {
   rojo: "Riesgo alto: requiere atencion prioritaria y manejo cuidadoso.",
 };
 
-// Normaliza valores para evitar inconsistencias (acentos, espacios, símbolos especiales)
 const normalizeWaterProximity = (value) => {
   if (!value) return value;
   const str = String(value).trim().toLowerCase();
-  // Detecta qué rango es sin depender del símbolo exacto
-  if (str.includes('50') && !str.includes('100') && !str.includes('500')) return '˂50m';
-  if (str.includes('100') && !str.includes('500')) return '≥100m';
-  if (str.includes('500')) return '≥500m';
+  if (str.includes("50") && !str.includes("100") && !str.includes("500")) return "˂50m";
+  if (str.includes("100") && !str.includes("500")) return "≥100m";
+  if (str.includes("500")) return "≥500m";
   return value;
 };
 
 const normalizeValue = (value, field) => {
   if (!value) return value;
   const str = String(value).trim().toLowerCase();
-  
-  switch(field) {
-    case 'wasteType':
-      if (str.includes('org')) return 'organico';
-      if (str.includes('pap')) return 'papel';
-      if (str.includes('cart')) return 'carton';
-      if (str.includes('vid')) return 'vidrio';
-      if (str.includes('plast')) return 'plastico';
-      if (str.includes('metal')) return 'metal';
+
+  switch (field) {
+    case "wasteType":
+      if (str.includes("org")) return "organico";
+      if (str.includes("pap")) return "papel";
+      if (str.includes("cart")) return "carton";
+      if (str.includes("vid")) return "vidrio";
+      if (str.includes("plast")) return "plastico";
+      if (str.includes("metal")) return "metal";
       break;
-    case 'slope':
-      if (str === 'plano') return 'plano';
-      if (str === 'leve') return 'leve';
-      if (str.includes('pronun')) return 'pronunciada';
-      if (str.includes('intent') || str.includes('intensa')) return 'intensa';
+    case "slope":
+      if (str === "plano") return "plano";
+      if (str === "leve") return "leve";
+      if (str.includes("pronun")) return "pronunciada";
+      if (str.includes("intent") || str.includes("intensa")) return "intensa";
       break;
-    case 'riskLevel':
-      if (str === 'bajo') return 'bajo';
-      if (str === 'medio') return 'medio';
-      if (str === 'alto') return 'alto';
+    case "riskLevel":
+      if (str === "bajo") return "bajo";
+      if (str === "medio") return "medio";
+      if (str === "alto") return "alto";
       break;
-    case 'materialType':
-      if (str.includes('recicl')) return 'reciclable';
-      if (str.includes('no') || str.includes('aprovec')) return 'no reciclable';
+    case "materialType":
+      if (str.includes("no") && str.includes("recicl")) return "no reciclable";
+      if (str.includes("recicl")) return "reciclable";
       break;
   }
-  
+
   return str;
 };
 
-// Analiza un reporte/formulario y devuelve nivel, color, explicacion y recomendacion.
 export function analyzeReport(form) {
   if (!form || (!form.wasteType && !form.riskLevel && !form.waterProximity)) {
     return { valid: false, message: NO_DATA_REPLY };
   }
 
-  // Normaliza todos los valores antes de buscar
   const normalized = {
-    wasteType: normalizeValue(form.wasteType, 'wasteType'),
-    slope: normalizeValue(form.slope, 'slope'),
+    wasteType: normalizeValue(form.wasteType, "wasteType"),
+    slope: normalizeValue(form.slope, "slope"),
     waterProximity: normalizeWaterProximity(form.waterProximity),
-    riskLevel: normalizeValue(form.riskLevel, 'riskLevel'),
-    materialType: normalizeValue(form.materialType, 'materialType'),
+    riskLevel: normalizeValue(form.riskLevel, "riskLevel"),
+    materialType: normalizeValue(form.materialType, "materialType"),
   };
 
   const contributions = {
@@ -175,31 +170,29 @@ export function analyzeReport(form) {
   };
 }
 
-// --- COMPRENSION DEL CHAT (lenguaje natural) ---
+// --- COMPRENSION DEL CHAT ---
 const normalize = (t) =>
-  (t || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  (t || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim();
 
 const has = (msg, words) => words.some((w) => msg.includes(w));
 
-const ALLOWED_KEYWORDS = [
-  "recicl", "residuo", "basura", "desecho", "organic", "plastic", "vidrio", "metal",
-  "carton", "papel", "bateria", "pila", "compost", "contamina", "riesgo", "ambient",
-  "clasific", "separ", "coraweb", "cora", "mapa", "formulario", "reporte", "punto",
-  "agua", "pendiente", "verde", "amarillo", "rojo", "color", "nivel", "material",
-  "archivero", "electronic", "aceite", "quimico", "vertedero", "reduc", "reutiliz",
-  "lata", "envase", "abono", "limpiar", "manej", "gestion",
-];
-
-const BANNED_KEYWORDS = [
-  "politic", "hack", "violen", "sexual", "arma", "droga", "bomba", "medicina",
-  "medicamento", "virus informatic", "malware", "porno", "religion", "futbol",
-];
+const scoreIntent = (msg, phrases) => {
+  let score = 0;
+  for (const phrase of phrases) {
+    if (msg.includes(phrase)) score += phrase.includes(" ") ? 3 : 1;
+  }
+  return score;
+};
 
 const MATERIAL_TIPS = {
   bateria:
     "Las baterias y pilas no van a la basura comun, porque sus metales contaminan el suelo y el agua. Guardalas secas en un frasco aparte y llevalas a un punto de recoleccion de residuos especiales. Nunca las quemes ni las perfores.",
   plastico:
-    "Con el plastico lo mejor es enjuagarlo, secarlo y aplastarlo para que ocupe menos. Sepáralo del resto y evita que llegue a rios o quebradas, porque se degrada en microplasticos.",
+    "Con el plastico lo mejor es enjuagarlo, secarlo y aplastarlo para que ocupe menos. Separalo del resto y evita que llegue a rios o quebradas, porque se degrada en microplasticos.",
   vidrio:
     "El vidrio se puede reciclar muchisimas veces sin perder calidad. Enjuagalo, manejalo con cuidado por los cortes y guardalo en un recipiente aparte.",
   metal:
@@ -215,136 +208,272 @@ const MATERIAL_TIPS = {
 };
 
 const detectMaterial = (msg) => {
-  if (has(msg, ["bateria", "pila"])) return "bateria";
-  if (has(msg, ["plastic"])) return "plastico";
+  if (has(msg, ["bateria", "pila", "pilas"])) return "bateria";
+  if (has(msg, ["plastic", "pet", "botella"])) return "plastico";
   if (has(msg, ["vidrio"])) return "vidrio";
   if (has(msg, ["metal", "lata", "envase"])) return "metal";
-  if (has(msg, ["organic", "comida", "compost", "abono"])) return "organico";
+  if (has(msg, ["organic", "comida", "compost", "abono", "cascara"])) return "organico";
   if (has(msg, ["papel", "carton"])) return "papel";
-  if (has(msg, ["electronic", "aparato", "celular", "computad", "telefono"])) return "electronico";
+  if (has(msg, ["electronic", "aparato", "celular", "computad", "telefono", "laptop"])) return "electronico";
   if (has(msg, ["aceite"])) return "aceite";
   return null;
 };
 
-// Responde una pregunta del usuario en lenguaje natural, dentro del contexto de CoraWeb.
-// Devuelve { text, action? }. action: 'tour' inicia el recorrido guiado.
-export function answerQuestion(text) {
+// Detecta pedidos indebidos aunque usen eufemismos / rodeos.
+export function detectUnsafeIntent(text) {
+  const msg = normalize(text);
+  if (!msg) return false;
+
+  const hard = [
+    "porn", "xxx", "nsfw", "desnud", "sexo", "sexual", "pene", "vagina", "coger",
+    "hack", "malware", "ransomware", "phishing", "ddos",
+    "bomba", "explosiv", "arma", "dispar", "matar", "asesin",
+    "droga", "cocaina", "marihuana", "metanfet", "fentanil",
+    "suicid", "autoles", "como morir",
+  ];
+  if (has(msg, hard)) return true;
+
+  const softPairs = [
+    ["foto", "sin ropa"],
+    ["manda", "nudes"],
+    ["contenido", "adulto"],
+    ["romper", "contrasena"],
+    ["entrar", "cuenta ajena"],
+    ["saltar", "seguridad"],
+    ["como fabricar", "arma"],
+    ["como hacer", "bomba"],
+    ["donde comprar", "droga"],
+  ];
+
+  return softPairs.some(([a, b]) => msg.includes(a) && msg.includes(b));
+}
+
+function extractTopicFromHistory(history = []) {
+  const recent = [...history].reverse();
+  for (const item of recent) {
+    const msg = normalize(item?.text || "");
+    const material = detectMaterial(msg);
+    if (material) return { type: "material", value: material };
+
+    if (has(msg, ["ruta", "como llegar", "waze"])) return { type: "feature", value: "ruta" };
+    if (has(msg, ["ubicacion", "gps", "mi posicion"])) return { type: "feature", value: "ubicacion" };
+    if (has(msg, ["formulario", "reporte", "registrar punto"])) return { type: "feature", value: "formulario" };
+    if (has(msg, ["archivero"])) return { type: "feature", value: "archivero" };
+    if (has(msg, ["riesgo", "verde", "amarillo", "rojo"])) return { type: "feature", value: "riesgo" };
+    if (has(msg, ["mapa", "coraweb", "tutorial", "recorrido"])) return { type: "feature", value: "tour" };
+  }
+  return null;
+}
+
+function isFollowUp(msg) {
+  return has(msg, [
+    "y eso", "y ese", "y esa", "y esos", "lo mismo", "eso mismo", "y tambien",
+    "y las", "y los", "otra vez", "mas info", "mas informacion", "y como",
+    "entonces", "ok y", "vale y", "perfecto y", "gracias y", "si pero",
+    "y que", "que mas", "continua", "sigue", "explica mejor", "mas detalle",
+  ]) || /^(y|ok|vale|si|sí|eso|ese|esa)\b/.test(msg);
+}
+
+function replyForFeature(feature) {
+  switch (feature) {
+    case "ruta":
+      return {
+        text: "Activa tu ubicacion, toca el punto del mapa y usa \"Ver ruta hasta aqui\". Te muestro distancia y tiempo estimado a pie.",
+      };
+    case "ubicacion":
+      return {
+        text: "Toca \"Activar mi ubicacion\" arriba a la izquierda. El mapa te sigue en tiempo real mientras te moves.",
+        action: "tour",
+      };
+    case "formulario":
+      return {
+        text: "En modo registro haz clic en el mapa. El formulario pide region, tipo de residuo, cantidad, pendiente, cercania al agua, riesgo y si es reciclable. Al guardar te calculo el riesgo.",
+      };
+    case "archivero":
+      return {
+        text: "En Archivero ves todos los puntos reportados, sus imagenes, riesgos y comentarios. Tambien puedes abrir un punto desde tu perfil.",
+      };
+    case "riesgo":
+      return {
+        text: "Verde es riesgo bajo, amarillo moderado y rojo alto. Sale de combinar tipo de residuo, cantidad, pendiente, cercania al agua y contaminacion.",
+      };
+    case "tour":
+      return {
+        text: "Te hago un recorrido rapido por CoraWeb: ubicacion, registrar punto, formulario y el menu de abajo.",
+        action: "tour",
+      };
+    default:
+      return null;
+  }
+}
+
+function withWiki(text, wiki) {
+  if (!wiki?.extract) return text;
+  const source = wiki.title ? ` (fuente: Wikipedia - ${wiki.title})` : " (fuente: Wikipedia)";
+  return `${text}\n\nDato util${source}: ${wiki.extract.slice(0, 420)}${wiki.extract.length > 420 ? "..." : ""}`;
+}
+
+/**
+ * Responde con conciencia de historial.
+ * @returns {{ text: string, action?: string|null, unsafe?: boolean }}
+ */
+export function answerQuestion(text, history = [], options = {}) {
   const msg = normalize(text);
   if (!msg) return { text: NO_DATA_REPLY };
 
-  if (has(msg, BANNED_KEYWORDS)) return { text: OFF_TOPIC_REPLY };
+  if (detectUnsafeIntent(text)) {
+    return { text: UNSAFE_REPLY, unsafe: true };
+  }
 
-  if (has(msg, ["hola", "buenas", "buenos dias", "buenas tardes", "que tal", "hey", "saludos", "ola"])) {
+  const topic = extractTopicFromHistory(history);
+  const followUp = isFollowUp(msg);
+
+  // Continuaciones: "y eso?", "lo mismo con vidrio", etc.
+  if (followUp && topic) {
+    if (topic.type === "material") {
+      const mentioned = detectMaterial(msg);
+      if (mentioned) return { text: MATERIAL_TIPS[mentioned] };
+      return {
+        text: `${MATERIAL_TIPS[topic.value]} Si quieres, dime otro material y te digo como manejarlo.`,
+      };
+    }
+    if (topic.type === "feature") {
+      const again = replyForFeature(topic.value);
+      if (again) return again;
+    }
+  }
+
+  // Intenciones con puntaje (menos rigido que if/else de una sola palabra)
+  const intents = [
+    {
+      name: "greeting",
+      score: scoreIntent(msg, ["hola", "buenas", "buenos dias", "buenas tardes", "que tal", "hey", "saludos", "ola"]),
+      reply: {
+        text: "Hola, que gusto. Soy AgenteCora: te ayudo con reciclaje, riesgos ambientales y a moverte por CoraWeb. Que necesitas?",
+      },
+    },
+    {
+      name: "thanks",
+      score: scoreIntent(msg, ["gracias", "genial", "perfecto", "excelente", "buenisimo", "thanks"]),
+      reply: { text: "Con mucho gusto. Si surge otra duda de residuos o de la app, aqui estoy." },
+    },
+    {
+      name: "tour",
+      score: scoreIntent(msg, [
+        "como uso", "como se usa", "como funciona", "tutorial", "guia", "guiame", "ensename",
+        "recorrido", "primeros pasos", "que puedo hacer", "explicame la app", "como empiezo",
+        "muestrame la app", "ayudame a usar",
+      ]),
+      reply: {
+        text: "Dale, te hago un recorrido rapido y te senalo cada parte: ubicacion, registrar un punto, formulario y el menu de abajo.",
+        action: "tour",
+      },
+    },
+    {
+      name: "addPoint",
+      score: scoreIntent(msg, [
+        "agregar punto", "registrar punto", "crear punto", "marcar punto", "reportar",
+        "como reporto", "como agrego", "poner un punto",
+      ]),
+      reply: {
+        text: "Activa \"Registrar punto de localizacion de residuos\", haz clic en el mapa y completa el formulario. Si quieres te lo senalo en pantalla.",
+        action: "tour",
+      },
+    },
+    {
+      name: "route",
+      score: scoreIntent(msg, ["ruta", "como llego", "como llegar", "direcciones", "waze", "ir al punto", "distancia"]),
+      reply: replyForFeature("ruta"),
+    },
+    {
+      name: "location",
+      score: scoreIntent(msg, ["ubicacion", "gps", "donde estoy", "mi posicion", "localiz", "centrar el mapa"]),
+      reply: replyForFeature("ubicacion"),
+    },
+    {
+      name: "form",
+      score: scoreIntent(msg, ["formulario", "llenar", "rellenar", "que pongo", "campos", "que datos"]),
+      reply: replyForFeature("formulario"),
+    },
+    {
+      name: "nav",
+      score: scoreIntent(msg, ["footer", "menu", "botones de abajo", "archivero", "perfil", "web informativa", "secciones"]),
+      reply: {
+        text: "Abajo tienes Home (mapa), Archivero, Web informativa y Perfil. El Archivero concentra los reportes con su riesgo.",
+        action: "tour",
+      },
+    },
+    {
+      name: "risk",
+      score: scoreIntent(msg, ["riesgo", "verde", "amarillo", "rojo", "nivel", "calificacion", "peligro"]),
+      reply: replyForFeature("riesgo"),
+    },
+    {
+      name: "recycleSplit",
+      score: scoreIntent(msg, ["reciclable", "no reciclable", "se recicla", "clasific", "separ", "como reciclo", "que va donde"]),
+      reply: {
+        text: "Separa por tipo: organico, papel/carton, plastico, vidrio y metal. Lo limpio y seco se recicla mejor; lo grasiento o mezclado suele ir a no reciclable.",
+      },
+    },
+    {
+      name: "water",
+      score: scoreIntent(msg, ["agua", "rio", "quebrada", "lixiviado", "cercania"]),
+      reply: {
+        text: "Mientras mas cerca del agua este un residuo, mayor es el riesgo por lixiviados. Esos puntos tienen prioridad de retiro y conviene contenerlos.",
+      },
+    },
+    {
+      name: "about",
+      score: scoreIntent(msg, ["coraweb", "que es cora", "la plataforma", "para que sirve", "la app", "la pagina"]),
+      reply: {
+        text: "CoraWeb sirve para mapear y gestionar puntos de residuos: los registras en el mapa, los revisas en Archivero y yo te ayudo a clasificar riesgo. Quieres un recorrido?",
+        action: "tour",
+      },
+    },
+  ];
+
+  intents.sort((a, b) => b.score - a.score);
+  const best = intents[0];
+  if (best && best.score >= 2) {
+    return best.reply;
+  }
+
+  const material = detectMaterial(msg);
+  if (material) {
+    if (has(msg, ["manej", "gestion", "que hago", "como trato", "desechar", "botar", "tirar", "disponer"])) {
+      return { text: MATERIAL_TIPS[material] };
+    }
+    return { text: MATERIAL_TIPS[material] };
+  }
+
+  if (options.wiki?.extract) {
     return {
-      text: "Hola, que gusto verte. Soy AgenteCora y te ayudo a clasificar residuos, entender los niveles de riesgo y moverte por CoraWeb. En que andas?",
+      text: withWiki(
+        "Te resumo lo mas util para gestion de residuos / ambiente con una fuente abierta:",
+        options.wiki
+      ),
     };
   }
 
-  if (has(msg, ["gracias", "genial", "perfecto", "excelente", "buenisimo"])) {
-    return { text: "Con mucho gusto. Aqui sigo por si surge algo mas sobre reciclaje o la plataforma." };
-  }
-
-  if (
-    has(msg, [
-      "como uso", "como se usa", "como funciona", "tutorial", "como utiliz",
-      "guia", "guiame", "ensename", "no se usar", "como navego",
-      "primeros pasos", "recorrido", "muestrame la app", "muestrame como",
-      "como empiezo", "donde empiezo", "como inicio", "por donde empiezo",
-      "que puedo hacer", "que se puede hacer", "que hago aqui", "que hago en esta",
-      "que hace esta app", "que hace esta pagina", "que ofrece esta", "que tiene esta app",
-      "para que sirve esta app", "para que sirve esta pagina", "para que es esta app",
-      "explicame la app", "explicame esta app", "explicame la pagina", "explicame como",
-      "ayudame a usar", "ayudame con la app", "ensename a usar", "ensename como",
-      "que opciones hay", "que opciones tengo", "que funciones tiene", "que se hace aqui",
-      "como me muevo", "como uso esta", "como utilizo esta", "como funciona esta",
-    ])
-  ) {
+  // Si hay tema reciente, no cortes la conversacion de golpe.
+  if (topic?.type === "material") {
     return {
-      text: "Dale, te hago un recorrido rapido y te voy senalando cada parte: como activar tu ubicacion, registrar un punto, llenar el formulario y el menu de abajo. Mira la pantalla, ahi va. (Puedes pedirmelo tambien diciendo \"como uso la app\", \"que puedo hacer aqui\", \"tutorial\" o \"explicame la app\").",
-      action: "tour",
+      text: `Si hablamos de ${topic.value}, puedo darte el paso a paso o compararlo con otro material. Tambien te ayudo con el mapa y el formulario de CoraWeb.`,
     };
   }
 
-  if (has(msg, ["agregar punto", "agrego un punto", "anadir punto", "registrar punto", "crear punto", "marcar punto", "poner un punto", "reportar", "como reporto", "como agrego"])) {
+  if (best && best.score >= 1) {
+    return best.reply;
+  }
+
+  // Preguntas vagas pero conversacionales: pedir aclaracion en vez de cortar.
+  if (msg.length < 18 || has(msg, ["ayuda", "duda", "pregunta", "info", "informacion"])) {
     return {
-      text: "Para registrar un punto activa el modo \"Registrar punto de localizacion de residuos\", haz clic en el mapa donde estan los residuos y llena el formulario. Te lo voy senalando.",
-      action: "tour",
+      text: "Claro. Puedo ayudarte con clasificar residuos, riesgos del mapa, rutas, ubicacion o como usar CoraWeb. Que parte te interesa?",
     };
   }
 
-  if (has(msg, ["ruta", "como llego", "como llegar", "direcciones", "camino", "navegar hasta", "ir al punto", "waze", "distancia al punto"])) {
-    return {
-      text: "Activa tu ubicacion, toca el punto que te interesa en el mapa y presiona \"Ver ruta hasta aqui\". Te dibujo el camino a pie con la distancia y el tiempo estimado, y lo quitas cuando quieras con \"Quitar ruta\".",
-    };
-  }
-
-  if (has(msg, ["ubicacion", "ubicar", "localiz", "donde estoy", "mi posicion", "gps", "centrar el mapa"])) {
-    return {
-      text: "Toca el boton \"Activar mi ubicacion\" arriba a la izquierda y el mapa te sigue en tiempo real mientras te moves. Te lo muestro en pantalla.",
-      action: "tour",
-    };
-  }
-
-  if (has(msg, ["formulario", "llenar", "rellenar", "que pongo", "campos", "que datos"])) {
-    return {
-      text: "El formulario aparece cuando haces clic en el mapa estando en modo registro. Te pide tu nombre, la region, el tipo de residuo, la cantidad, la pendiente del terreno, que tan cerca esta del agua, el riesgo y si es reciclable. Apenas lo guardas, te calculo el nivel de riesgo y lo veras con su color.",
-    };
-  }
-
-  if (has(msg, ["footer", "menu", "navegar", "iconos", "botones de abajo", "secciones", "perfil", "web informativa"])) {
-    return {
-      text: "En el menu de abajo tienes Home, que es el mapa; Archivero, donde estan todos los puntos reportados con su riesgo; Web informativa; y Perfil. Te lo senalo si quieres.",
-      action: "tour",
-    };
-  }
-
-  if (has(msg, ["manej", "gestion", "que hago con", "como trato", "disponer", "desechar", "botar", "tirar", "deshacerme", "que hago si"])) {
-    const mat = detectMaterial(msg);
-    if (mat) return { text: MATERIAL_TIPS[mat] };
-    return {
-      text: "Depende del tipo de residuo, pero la idea base es la misma: separalo por material, mantenlo limpio y seco, y llevalo al punto que le corresponde. Si me decis que residuo es (plastico, vidrio, metal, organico, baterias, electronicos...) te doy los pasos exactos.",
-    };
-  }
-
-  const mat = detectMaterial(msg);
-  if (mat) return { text: MATERIAL_TIPS[mat] };
-
-  if (has(msg, ["riesgo", "color", "verde", "amarillo", "rojo", "nivel", "peligro", "calificacion"])) {
-    return {
-      text: "Califico cada punto con un color: verde es riesgo bajo y se maneja normal; amarillo es riesgo moderado, conviene retirarlo pronto; y rojo es riesgo alto, necesita atencion prioritaria. El color sale de combinar el tipo de residuo, la cantidad, la pendiente, la cercania al agua y el nivel de contaminacion.",
-    };
-  }
-
-  if (has(msg, ["reciclable", "no reciclable", "se recicla", "sirve para recicl"])) {
-    return {
-      text: "Reciclable es todo lo que se puede reaprovechar: papel y carton limpios, plastico, vidrio y metal. No reciclable es lo que esta contaminado o mezclado y va a residuos comunes. Si dudas con un punto, marcalo en el formulario y yo lo evaluo.",
-    };
-  }
-
-  if (has(msg, ["clasific", "separ", "como reciclo", "que va donde", "ordenar"])) {
-    return {
-      text: "La clave esta en separar por tipo: organico, papel y carton, plastico, vidrio y metal. Manten cada grupo limpio y seco para que se pueda reciclar. En el mapa puedes registrar cada punto con su tipo de residuo.",
-    };
-  }
-
-  if (has(msg, ["coraweb", "que es cora", "la plataforma", "la app", "la pagina", "para que sirve"])) {
-    return {
-      text: "CoraWeb es una plataforma para mapear y gestionar puntos de residuos en la comunidad. Registras reportes en el mapa, los exploras en el Archivero y yo te ayudo a clasificarlos y a entender su riesgo. Quieres que te haga un recorrido?",
-      action: "tour",
-    };
-  }
-
-  if (has(msg, ["agua", "rio", "quebrada", "cercania", "lixiviado"])) {
-    return {
-      text: "Mientras mas cerca esta un residuo de un cuerpo de agua, mayor es el riesgo de contaminacion por lixiviados. Esos puntos tienen prioridad de retiro y conviene usar barreras de contencion.",
-    };
-  }
-
-  if (has(msg, ALLOWED_KEYWORDS)) {
-    return {
-      text: "Eso te lo puedo ayudar. Me das un poco mas de detalle? Por ejemplo, que residuo es o que parte de CoraWeb quieres usar.",
-    };
-  }
-
-  return { text: OFF_TOPIC_REPLY };
+  return {
+    text: "Puedo ayudarte si lo enfocamos a reciclaje, ambiente o CoraWeb. Por ejemplo: como separar plastico, que significa riesgo rojo, o como registrar un punto.",
+  };
 }

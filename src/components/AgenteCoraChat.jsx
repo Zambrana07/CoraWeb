@@ -1,32 +1,66 @@
-import { useEffect, useRef, useState, useCallback, memo } from "react";
-import { answerQuestion, CONVERSATION_STARTERS } from "../agent/agenteCora";
+import { useEffect, useRef, useState, memo } from "react";
+import { CONVERSATION_STARTERS } from "../agent/agenteCora";
 import coraLogo from "../assets/img/Cora-Agent.png";
 import "../assets/styles/AgenteCora.css";
 
 const WELCOME = {
   from: "bot",
-  text: "Hola, soy AgenteCora. Te ayudo con reciclaje, clasificacion de residuos, niveles de riesgo y el uso de CoraWeb. En que te puedo ayudar?",
+  text: "Hola, soy AgenteCora. Te ayudo con reciclaje, clasificacion de residuos, niveles de riesgo y el uso de CoraWeb. Tambien puedo buscar info ambiental confiable cuando la necesites. En que te ayudo?",
 };
 
 function AgenteCoraChat() {
   const [open, setOpen] = useState(false);
   const [messages, setMessages] = useState([WELCOME]);
   const [input, setInput] = useState("");
+  const [loading, setLoading] = useState(false);
   const endRef = useRef(null);
 
   useEffect(() => {
     if (open) endRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, open]);
+  }, [messages, open, loading]);
 
-  const send = (rawText) => {
+  const send = async (rawText) => {
     const text = (rawText ?? input).trim();
-    if (!text) return;
-    const reply = answerQuestion(text);
-    setMessages((prev) => [...prev, { from: "user", text }, { from: "bot", text: reply.text }]);
+    if (!text || loading) return;
+
+    const history = messages
+      .filter((m) => m.from === "user" || m.from === "bot")
+      .slice(-10)
+      .map((m) => ({ from: m.from, text: m.text }));
+
+    setMessages((prev) => [...prev, { from: "user", text }]);
     setInput("");
-    if (reply.action === "tour") {
-      setOpen(false);
-      setTimeout(() => window.dispatchEvent(new CustomEvent("cora-start-tour")), 300);
+    setLoading(true);
+
+    try {
+      const response = await fetch("/api/agente", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: text, history }),
+      });
+      const data = await response.json();
+
+      const replyText =
+        data?.text ||
+        data?.message ||
+        "No pude responder ahora. Intenta de nuevo en un momento.";
+
+      setMessages((prev) => [...prev, { from: "bot", text: replyText }]);
+
+      if (data?.action === "tour") {
+        setOpen(false);
+        setTimeout(() => window.dispatchEvent(new CustomEvent("cora-start-tour")), 300);
+      }
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        {
+          from: "bot",
+          text: "Tuve un problema de conexion. Revisa que el backend este corriendo e intentalo otra vez.",
+        },
+      ]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -43,7 +77,7 @@ function AgenteCoraChat() {
             <div className="cora-chat-avatar">AC</div>
             <div className="cora-chat-titles">
               <strong>AgenteCora</strong>
-              <span>Asistente de CoraWeb</span>
+              <span>Asistente inteligente de CoraWeb</span>
             </div>
             <button
               type="button"
@@ -62,7 +96,13 @@ function AgenteCoraChat() {
               </div>
             ))}
 
-            {messages.length === 1 && (
+            {loading && (
+              <div className="cora-msg cora-msg-bot cora-msg-typing">
+                AgenteCora esta pensando...
+              </div>
+            )}
+
+            {messages.length === 1 && !loading && (
               <div className="cora-starters">
                 {CONVERSATION_STARTERS.map((s) => (
                   <button
@@ -85,8 +125,9 @@ function AgenteCoraChat() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Escribe tu pregunta..."
+              disabled={loading}
             />
-            <button type="submit" aria-label="Enviar">
+            <button type="submit" aria-label="Enviar" disabled={loading || !input.trim()}>
               &#10148;
             </button>
           </form>
