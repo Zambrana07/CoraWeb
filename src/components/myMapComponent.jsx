@@ -333,9 +333,33 @@ function MyMapComponent() {
         window.history.replaceState({}, document.title);
     }, [focusPoint]);
 
-    // Ubicacion en tiempo real: el navegador nos avisa cada vez que el GPS cambia de posicion.
+    // Ubicacion en tiempo real: el navegador solo la permite en HTTPS o localhost.
     useEffect(() => {
-        if (!locationEnabled || !("geolocation" in navigator)) return;
+        if (!locationEnabled) return;
+
+        if (!window.isSecureContext) {
+            setLocationEnabled(false);
+            localStorage.setItem("locationEnabled", "false");
+            showFeedback({
+                variant: 'warning',
+                title: 'Se necesita HTTPS',
+                message: 'El GPS no funciona en HTTP por Network. Abre la app con https:// (no http://) y acepta el aviso de seguridad del navegador.',
+                confirmLabel: 'Entendido'
+            });
+            return;
+        }
+
+        if (!("geolocation" in navigator)) {
+            setLocationEnabled(false);
+            localStorage.setItem("locationEnabled", "false");
+            showFeedback({
+                variant: 'error',
+                title: 'Ubicación',
+                message: 'Este dispositivo o navegador no soporta geolocalización.',
+                confirmLabel: 'Entendido'
+            });
+            return;
+        }
 
         const watchId = navigator.geolocation.watchPosition(
             (pos) => {
