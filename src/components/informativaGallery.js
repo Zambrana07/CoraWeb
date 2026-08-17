@@ -1,7 +1,18 @@
-// Galeria 3D de la Web informativa.
-// initGallery(container, { onOpen }) engancha el comportamiento sobre un
-// contenedor ya renderizado por React y devuelve una funcion de limpieza.
-// onOpen(index) se llama al abrir una tarjeta y onOpen(-1) al cerrarla.
+/**
+ * Galeria 3D de la Web informativa:
+ * Inicializa y gestiona la interactividad tridimensional para un contenedor de tarjetas pre-renderizado.
+ * 
+ * Calcula dinámicamente las métricas espaciales del contenedor para rastrear el puntero y aplicar 
+ * un mapa de clases en cascada (`is-hover-main`, `is-left-*`, `is-right-*`) a las tarjetas adyacentes, 
+ * logrando un efecto de perspectiva e iluminación 3D. Incorpora un cálculo de histeresis adaptativo 
+ * basado en la velocidad del cursor (`effectiveEPS`) para evitar saltos bruscos durante el deslizamiento continuo.
+ * 
+ * Administra los estados de expansión y centrado mediante la variable CSS `--shift`, soportando interacción 
+ * tanto por eventos de puntero como por accesibilidad de teclado (`Enter`, `Espacio` y `Escape`). Invoca 
+ * la función de notificación `onOpen` al modificar la selección y retorna un callback de limpieza (`cleanup`) 
+ * encargado de desvincular todos los escuchadores de eventos al desmontar el componente en React.
+ */
+
 export function initGallery(container, { onOpen } = {}) {
   if (!container) return () => {};
 

@@ -4,6 +4,19 @@ import logo from '../assets/img/CoraLogo.png';
 import adminIcon from '../assets/img/icons/file.svg';
 import { getStoredUser, isAdminUser } from '../lib/authSession';
 
+/**
+ * Componente Header principal de la aplicación:
+ * 
+ * Se encarga de renderizar la barra superior global de navegación, mostrando la identidad de marca 
+ * mediante el logotipo e integrando un control de acceso condicional basado en roles. La resolución 
+ * del usuario activo prioriza la prop recibida y, como mecanismo de respaldo (fallback), consulta el 
+ * estado persistido en sesión a través de `getStoredUser()`.
+ * 
+ * Evalúa los permisos del usuario con `isAdminUser()` para determinar la visibilidad del botón de administración. 
+ * Cuando el botón está presente, utiliza el hook `useNavigate` de React Router para redirigir dinámicamente 
+ * al usuario hacia la ruta del panel administrativo (`/admin`).
+ */
+
 const Header = ({ user }) => {
   const navigate = useNavigate();
   const currentUser = user || getStoredUser();
