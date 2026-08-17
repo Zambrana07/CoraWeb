@@ -18,6 +18,15 @@ import AdminPanel from "./pages/AdminPanel";
 import { clearStoredUser, getStoredUser, setStoredUser } from "./lib/authSession";
 import SafariToolbarColor from './components/SafariColor'
 
+/**
+ * Componente Layout:
+ * 
+ * Es el núcleo operativo de la aplicación encargado de evaluar el contexto de navegación en cada cambio de ruta.
+ * Realiza verificaciones asíncronas de sesión contra la API del backend para asegurar que la cuenta del usuario
+ * continúe activa, previene el acceso no autorizado a secciones privadas y sincroniza permisos/roles en tiempo real.
+ * Asimismo, determina qué elementos de la interfaz deben mostrarse u ocultarse según la ruta actual.
+ */
+
 function Layout() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -66,9 +75,21 @@ function Layout() {
     };
   }, [userId, hideFooter, navigate, location.pathname]);
 
+    /* Guarda de Autenticación (protección rutas privadas):
+    * Condicional de seguridad inmediata: Si un usuario no autenticado intenta navegar a una ruta protegida
+    * (cualquiera que no sea /login o /register), el componente interrumpe el renderizado normal y ejecuta
+    * una redirección con sustitución de historial hacia la pantalla de inicio de sesión.
+    */
+
   if (!userId && !hideFooter) {
     return <Navigate to="/login" replace />;
   }
+  
+    /* Renderizado de la Estructura Visual:
+    *
+    * Renderiza el encabezado global, ajusta el color de la barra del navegador para dispositivos, define 
+    * las rutas mapeadas del sistema y monta condicionalmente los componentes flotantes y el pie de página.
+    */
 
   return (
     <>
@@ -96,6 +117,15 @@ function Layout() {
     </>
   );
 }
+
+  /**
+   * Componente Raíz:
+   * 
+   * Constituye el nivel superior de la jerarquía de React en este archivo.
+   * Su propósito principal es proveer el contexto de enrutamiento mediante el contenedor 'BrowserRouter',
+   * asegurando que todos los hooks de navegación ('useLocation', 'useNavigate') y elementos de ruta
+   * declarados dentro de 'Layout' dispongan del estado y la API del historial del navegador.
+   */
 
 function App() {
   return (
