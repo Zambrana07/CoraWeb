@@ -1,3 +1,12 @@
+/**
+ * App.css — reset de toda la SPA y restos de un carrusel antiguo.
+ *
+ * El * { margin: 0 } quita los márgenes por defecto del navegador.
+ * user-select: none evita que al tocar se seleccione texto (útil en el mapa).
+ * Las clases .carrousel* ya no las usa Home (ahora es el mapa a pantalla completa);
+ * se dejan por si algún experimento las reutiliza.
+ */
+/* Quita márgenes por defecto y unifica la fuente. */
 *{
   margin: 0;
   padding: 0;

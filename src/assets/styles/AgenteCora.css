@@ -1,3 +1,6 @@
+/**
+ * Chat flotante, tarjetas de riesgo del mapa (--risk-hex) y pills del Archivero.
+ */
 /* --- Burbuja de chat AgenteCora (abajo-derecha) --- */
 .cora-chat-root {
   position: fixed;
@@ -37,6 +40,7 @@
   object-fit: cover;
 }
 
+/* Ventana del chat (encima de la burbuja). */
 .cora-chat-panel {
   width: 340px;
   max-width: calc(100vw - 40px);
@@ -98,6 +102,7 @@
   background: #f4f8f5;
 }
 
+/* Globos: bot a la izquierda (blanco), usuario a la derecha (teal). */
 .cora-msg {
   max-width: 85%;
   padding: 9px 12px;
@@ -181,6 +186,7 @@
 .cora-risk-tooltip::before {
   display: none !important;
 }
+/* Recuadro de riesgo junto al pin; --risk-hex lo pone analyzeReport. */
 .cora-risk-card {
   width: 180px;
   border-radius: 10px;

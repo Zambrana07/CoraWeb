@@ -1,3 +1,9 @@
+/**
+ * CoraFeedbackModal.css — modal de éxito / error / aviso / confirmación.
+ * Overlay a pantalla completa (z-index 10000) y tarjeta centrada.
+ * Botones: --success verde, --danger rojo, --ghost para cancelar.
+ */
+/* Fondo oscuro + blur; bloquea el resto de la página. */
 .cora-feedback-overlay {
   position: fixed;
   inset: 0;
@@ -75,6 +81,7 @@
   flex-wrap: wrap;
 }
 
+/* Botones: primario teal, éxito verde, peligro rojo, ghost para cancelar. */
 .cora-feedback-btn {
   flex: 1;
   min-width: 120px;

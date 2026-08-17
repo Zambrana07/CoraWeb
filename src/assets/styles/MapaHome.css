@@ -1,3 +1,10 @@
+/**
+ * MapaHome.css — mapa a pantalla completa y la UI que flota encima.
+ *
+ * html/body/#root sin scroll para que Leaflet ocupe el viewport.
+ * .leaflet-control-container se oculta (zoom nativo de Leaflet).
+ * .ui-container / .location-btn son el panel izquierdo y el botón de GPS.
+ */
 /* Asegura que las capas base del documento ocupen la totalidad de la ventana sin márgenes residuales */
 html, body, #root {
   height: 100%;

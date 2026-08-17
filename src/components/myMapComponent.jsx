@@ -1,3 +1,17 @@
+/**
+ * myMapComponent.jsx — corazón del producto: mapa Leaflet de puntos de residuos.
+ *
+ * Qué hace, en orden:
+ *  1. Pide GPS y dibuja un círculo de precisión.
+ *  2. Carga reportes (GET /api/reportes) y se suscribe a Realtime de Supabase.
+ *  3. Modo "Registrar punto": un clic pone un marcador temporal + formulario.
+ *  4. Comprime fotos a JPEG ≤ 2 MB (máx. 3) y las manda como data URL.
+ *  5. POST /api/reportes crea el punto.
+ *  6. AgenteCora.analyzeReport pinta color/puntuación junto a cada pin.
+ *
+ * Subcomponentes Leaflet: RecenterMap, FocusMap, MapEventsHandler.
+ * data-tour en los botones sirve al tutorial CoraTour.
+ */
 // --- IMPORTACIONES ---
 import { useState, useEffect, memo } from 'react';
 import { useLocation, useNavigate } from "react-router-dom";
@@ -28,6 +42,7 @@ const RiskCard = memo(({ analysis }) => {
     );
 });
 
+// Convierte una fila de la API / Realtime al objeto que usa cada Marker.
 function mapReporteToMarker(reporte) {
     return {
         id: reporte.id,
@@ -46,6 +61,7 @@ function mapReporteToMarker(reporte) {
     };
 }
 
+// Supabase a veces manda el registro en .new, .record o anidado.
 function getRealtimeReportPayload(payload) {
     return payload?.new ?? payload?.record ?? payload?.payload?.new ?? payload;
 }
@@ -65,6 +81,7 @@ L.Icon.Default.mergeOptions({
 
 // --- SUB-COMPONENTES LÓGICOS ---
 function MapEventsHandler({ onMapClick, isActive }) {
+    // Solo registra clics cuando el usuario activó "Registrar punto".
     useMapEvents({
         click: (e) => {
             if (isActive) onMapClick(e.latlng);
@@ -76,6 +93,7 @@ function MapEventsHandler({ onMapClick, isActive }) {
 function RecenterMap({ position, disabled }) {
     const map = useMap();
 
+    // Vuela el mapa a la GPS del usuario (se puede desactivar desde el perfil).
     useEffect(() => {
         if (position && !disabled) {
             map.flyTo(position, 16);
@@ -145,6 +163,7 @@ function MyMapComponent() {
         });
     };
 
+    // Reduce lado largo a 1200px y baja calidad JPEG hasta caber en 2 MB.
     const compressImageFile = async (file) => {
         const image = await fileToImage(file);
         const maxDimension = 1200;
@@ -194,6 +213,7 @@ function MyMapComponent() {
         };
     };
 
+    // Valida tipo, comprime y acumula hasta MAX_IMAGES (3).
     const handleImageSelection = async (event) => {
         const selectedFiles = Array.from(event.target.files || []);
         if (selectedFiles.length === 0) {
@@ -326,6 +346,7 @@ function MyMapComponent() {
         }
     }, [locationEnabled]);
 
+    // Lista inicial de pines desde Express (no desde Supabase directo).
     async function cargarReportes() {
         try {
             const response = await fetch("http://localhost:3000/api/reportes");
@@ -404,6 +425,7 @@ function MyMapComponent() {
         }
     };
 
+    // Clic en el mapa (solo en modo registro): coloca el pin temporal y el formulario.
     const handleMapClick = (latlng) => {
         setFormData({
             name: '',
@@ -456,6 +478,7 @@ function MyMapComponent() {
             );
         }
     };
+    // Envía el reporte nuevo. El servidor puede rechazar si hay demasiados sin verificar.
     const handleFormSubmit = async (e) => {
         e.preventDefault();
         if (!formData.amount) {

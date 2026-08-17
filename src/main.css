@@ -1,3 +1,11 @@
+/**
+ * main.css — tokens de color globales, barras iOS y utilidades.
+ *
+ * :root define el sistema (HSL) + tokens del perfil.
+ * body::before/::after pintan notch e indicador home en teal (si existen).
+ * .nature-title es el "badge" de títulos (mapa, archivero, informativa).
+ * .page-transition añade un flash al entrar a una página.
+ */
 /* Definition of the design system. All colors, gradients, fonts, etc should be defined here.
    All colors MUST be HSL.
 */
@@ -58,6 +66,7 @@
   --sidebar-ring: 217.2 91.2% 59.8%;
 }
 
+/* Paleta oscura de plantilla (shadcn). CoraWeb no activa .dark hoy. */
 .dark {
   --background: 222.2 84% 4.9%;
   --foreground: 210 40% 98%;
@@ -122,6 +131,7 @@ body { background: hsl(var(--background)); color: hsl(var(--foreground)); margin
 
 
 
+/* Título "pastilla": degradado crema/verde, borde teal. El selector duplicado gana especificidad. */
 .nature-title.nature-title {
   color: #04504f;
   width: fit-content;
@@ -159,6 +169,7 @@ body { background: hsl(var(--background)); color: hsl(var(--foreground)); margin
   pointer-events: none;
 }
 
+/* Flash de degradado al montar la página; se desactiva con reduced-motion. */
 .page-transition {
   position: relative;
 }

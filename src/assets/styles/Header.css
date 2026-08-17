@@ -1,3 +1,10 @@
+/**
+ * Header.css — barra superior institucional.
+ *
+ * sticky + z-index 1008: queda pegada arriba y por encima del mapa Leaflet.
+ * Color #04504F (teal Cora). En móvil baja de 70px a 60px.
+ */
+/* Barra teal, logo a la izquierda. */
 .main-header {
   background-color: #04504F; 
   height: 70px;
@@ -16,6 +23,7 @@
   width: auto;
 }
 
+/* El logo dentro del header mide 50px fijos. */
 .main-header .logo-img {
   height: 50px !important;
   width: auto;

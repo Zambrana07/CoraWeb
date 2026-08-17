@@ -1,3 +1,15 @@
+/**
+ * CoraFeedbackModal.jsx — diálogo reutilizable (sustituye alert() nativo).
+ *
+ * Variantes:
+ *   success  → mensaje de "todo bien"
+ *   error    → algo falló
+ *   warning  → aviso (falta un campo, etc.)
+ *   confirm  → pregunta sí/no: Cancelar cierra; el botón rojo ejecuta onConfirm
+ *
+ * En success/error/warning, un clic en el fondo oscuro también cierra.
+ * Lo usan el mapa, el perfil y el Archivero.
+ */
 import logo from "../assets/img/CoraLogo.png";
 import "../assets/styles/CoraFeedbackModal.css";
 
@@ -22,6 +34,7 @@ export default function CoraFeedbackModal({
   if (!open) return null;
 
   const isConfirm = variant === "confirm";
+  // Color del botón principal según el tipo de mensaje.
   const primaryClass =
     variant === "success"
       ? "cora-feedback-btn--success"
@@ -44,6 +57,7 @@ export default function CoraFeedbackModal({
       onClick={isConfirm ? undefined : onClose}
       role="presentation"
     >
+      {/* stopPropagation: un clic dentro de la tarjeta no cierra el overlay. */}
       <div
         className="cora-feedback-card"
         role="dialog"

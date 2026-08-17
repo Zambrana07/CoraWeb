@@ -1,3 +1,15 @@
+/**
+ * Footer.jsx — menú inferior fijo con las 4 secciones de la app.
+ *
+ *  Home          → mapa (/)
+ *  Archivero     → catálogo de reportes
+ *  Web informativa → reciclaje y colores de riesgo
+ *  Perfil        → ficha del usuario
+ *
+ * data-tour="footer" permite que CoraTour ilumine este menú en el último paso.
+ * Usa <a href> (recarga la página), no <Link> de React Router.
+ * La prop `style` se acepta pero no se usa.
+ */
 import React from 'react';
 import '../assets/styles/Footer.css'; 
 import HomeIcon from '../assets/img/icons/house-solid-full.svg';

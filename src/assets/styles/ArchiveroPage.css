@@ -1,3 +1,9 @@
+/**
+ * ArchiveroPage.css — catálogo: búsqueda, carruseles, lista y modal de detalle.
+ *
+ * Misma foto de fondo que login. El contenido hace scroll interno.
+ * El modal (.archivero-modal-*) es overlay a pantalla completa con comentarios.
+ */
 .archivero-page {
   display: flex;
   flex-direction: column;
@@ -47,6 +53,7 @@
   padding: 0.55rem 0.8rem;
 }
 
+/* Barra de búsqueda + filtro de región. */
 .archivero-search-wrap {
   width: min(900px, 100%);
   margin: 0 auto;
@@ -92,6 +99,7 @@
   padding: 0.4rem 0.7rem;
 }
 
+/* Fila del carrusel: flechas + pista. --items-per-view lo pone el JS. */
 .archivero-carousel-base {
   width: 100%;
   display: flex;
@@ -168,6 +176,7 @@
   padding: 0.4rem 0.7rem;
 }
 
+/* Lista vertical "Todos los puntos" debajo de los carruseles. */
 .archivero-list {
   width: min(900px, 100%);
   margin: 0 auto;
@@ -219,6 +228,7 @@
   color: rgba(4, 80, 79, 0.85);
 }
 
+/* Overlay del detalle: bloquea el fondo y centra la ficha. */
 .archivero-modal-overlay {
   position: fixed;
   inset: 0;
@@ -419,6 +429,7 @@
   margin-right: 0.35rem;
 }
 
+/* Hilo de comentarios del modal (formulario + lista). */
 .archivero-comments {
   padding: 1rem;
   border-radius: 16px;

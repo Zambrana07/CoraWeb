@@ -1,6 +1,14 @@
+/**
+ * PageNotFound.css — layout de la pantalla 404.
+ *
+ * .notfound centra el bloque a pantalla completa.
+ * El título, subtítulo y enlace (.title, .subtitle, .primary-link) viven en main.css.
+ */
 .flex{
     margin-top: 10lvh;
 }
+
+/* Caja a pantalla completa que centra el mensaje 404. */
 .notfound {
   display: flex;
   min-height: 100vh;

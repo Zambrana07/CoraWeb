@@ -1,3 +1,13 @@
+/**
+ * Informativa.jsx — página educativa (no hay datos de la API aquí).
+ *
+ * 1. TOPICS: cada tarjeta tiene título, imagen, texto y tips.
+ * 2. Gallery: pinta las tarjetas. El hover/clic lo hace informativaGallery.js
+ *    (listeners de puntero sobre el DOM, no React state).
+ * 3. Al abrir una tarjeta, abajo aparece el detalle (active).
+ * 4. RISK_COLORS explica verde / amarillo / rojo de AgenteCora (misma escala
+ *    que analyzeReport en el mapa).
+ */
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -6,6 +16,7 @@ import "../assets/styles/Informativa.css";
 
 const img = (keyword, lock) => `https://loremflickr.com/600/900/${keyword}?lock=${lock}`;
 
+// Un objeto por tarjeta: id, título, foto, párrafo y lista de consejos.
 const TOPICS = [
   {
     id: "reciclaje",
@@ -75,6 +86,7 @@ const TOPICS = [
   },
 ];
 
+// Misma escala de colores que el motor de riesgo (verde ≤33, amarillo, rojo >66).
 const RISK_COLORS = [
   {
     id: "verde",
@@ -96,9 +108,11 @@ const RISK_COLORS = [
   },
 ];
 
+// memo evita recrear la galería si el padre se re-renderiza sin cambiar topics.
 const Gallery = memo(function Gallery({ topics, onOpen }) {
   const ref = useRef(null);
 
+  // Engancha hover/clic al DOM y limpia los listeners al desmontar.
   useEffect(() => {
     const cleanup = initGallery(ref.current, { onOpen });
     return cleanup;
@@ -125,6 +139,7 @@ const Gallery = memo(function Gallery({ topics, onOpen }) {
 });
 
 function Informativa() {
+  // -1 = ninguna tarjeta abierta; 0..n = índice en TOPICS.
   const [openIndex, setOpenIndex] = useState(-1);
 
   const handleOpen = useCallback((index) => {

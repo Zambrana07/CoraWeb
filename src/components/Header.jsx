@@ -1,3 +1,8 @@
+/**
+ * Header.jsx — barra superior fija de CoraWeb.
+ * Solo muestra el logo. El color teal (#04504F) está en Header.css.
+ * Es sticky para que quede visible encima del mapa al hacer scroll.
+ */
 import '../assets/styles/Header.css';
 import logo from '../assets/img/CoraLogo.png'; 
 

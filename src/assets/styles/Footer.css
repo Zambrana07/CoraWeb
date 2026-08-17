@@ -1,3 +1,11 @@
+/**
+ * Footer.css — menú inferior fijo (Home, Archivero, Informativa, Perfil).
+ *
+ * position: fixed al borde inferior, z-index 1000 para quedar sobre el mapa.
+ * Cada ítem es una columna: icono blanco (filter: invert) + etiqueta recortada.
+ * En móvil se respeta el home indicator de iOS (safe-area-inset-bottom).
+ */
+/* Barra teal pegada abajo. */
 .footer {
   background-color: #04504F;
   padding: 0.75rem 1rem;
@@ -11,6 +19,7 @@
 
 }
 
+/* Distribuye los 4 enlaces a lo ancho. */
 .footer-content {
   display: flex;
   justify-content: space-around;
@@ -18,6 +27,7 @@
   gap: 0.5rem;
 }
 
+/* Un botón del menú: icono arriba, texto abajo. */
 .footer-item {
   display: flex;
   flex-direction: column;
@@ -34,6 +44,7 @@
   flex: 1 1 auto;
 }
 
+/* invert(1) pinta de blanco los SVG que vienen en negro. */
 .footer-icon {
   display: flex;
   align-items: center;

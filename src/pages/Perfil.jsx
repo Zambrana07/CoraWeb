@@ -1,3 +1,15 @@
+/**
+ * Perfil.jsx — ficha del usuario logueado y sus reportes.
+ *
+ * Paso a paso:
+ *  1. Lee id y rol de localStorage.
+ *  2. Carga el perfil (POST /api/load-perfil) y el banner diario (Pexels).
+ *  3. Carga los reportes de ese usuario (GET /api/reportes?usuarioId=).
+ *  4. Permite editar perfil, borrar reportes no verificados
+ *     y saltar al mapa (mini-mapa) o al Archivero (icono de archivo).
+ *
+ * MiniMap: mapa Leaflet pequeño e inerte; un clic vuela Home a esas coordenadas.
+ */
 import React from "react";
 import "../assets/styles/Perfil.css";
 import Header from "../components/Header";
@@ -20,6 +32,7 @@ function MiniMap({ position }) {
 
   if (!position) return null;
 
+  // skipLocationFly evita que el GPS te arranque del punto al llegar a Home.
   const handleClick = () => {
     navigate("/", {
       state: {
@@ -74,12 +87,14 @@ const [showEditModal, setShowEditModal] = useState(false);
     cargarPerfil();
   }, []);
 
+  // Una foto de naturaleza por día, cacheada en el backend.
   useEffect(() => {
     fetch("http://localhost:3000/api/nature-image")
       .then((r) => r.json())
       .then((data) => setBannerImage(data.image));
   }, []);
 
+  // Solo el dueño puede borrar; el botón se oculta si ya está verificado.
   const eliminarPost = async (postId) => {
     try {
       const response = await fetch(`http://localhost:3000/api/reportes/${postId}`, {
@@ -126,6 +141,7 @@ const [showEditModal, setShowEditModal] = useState(false);
     });
   };
 
+  // Trae nombre, aboutme y foto desde la tabla usuarios.
   async function cargarPerfil() {
     try {
       const response = await fetch(
@@ -152,6 +168,7 @@ const [showEditModal, setShowEditModal] = useState(false);
       console.error(error);
     }
   }
+  // PUT /api/perfil. perfil_img es un data URL si eligió foto nueva.
   async function guardarPerfil(perfil_img, newNombre, newAbout) {
     try {
       const payload = {
@@ -198,6 +215,7 @@ const [showEditModal, setShowEditModal] = useState(false);
     }
   }, [perfil]);
 
+  // Convierte filas de reportes al formato de las tarjetas de esta página.
   async function cargarPostsBackend() {
     try {
       const response = await fetch(`http://localhost:3000/api/reportes?usuarioId=${USER_ID}`);

@@ -1,3 +1,18 @@
+/**
+ * CoraTour.jsx — tutorial con "spotlight" sobre botones reales de la UI.
+ *
+ * Se activa con: window.dispatchEvent(new CustomEvent("cora-start-tour"))
+ * (normalmente desde el chat de AgenteCora).
+ *
+ * Pasos:
+ *  1. Botón de GPS del mapa (data-tour="location")
+ *  2. Botón de registrar punto (data-tour="register")
+ *  3. Explicación del formulario (sin selector: tarjeta centrada)
+ *  4. Menú inferior (data-tour="footer")
+ *
+ * Mide getBoundingClientRect() para colocar el recuadro y el globo de texto.
+ * Si el usuario redimensiona o hace scroll, vuelve a medir.
+ */
 import { useEffect, useLayoutEffect, useState } from "react";
 import "../assets/styles/CoraTour.css";
 
@@ -38,6 +53,7 @@ function CoraTour() {
     return () => window.removeEventListener("cora-start-tour", start);
   }, []);
 
+  // Tras pintar, mide el elemento del paso actual y lo sigue en scroll/resize.
   useLayoutEffect(() => {
     if (!active) return;
     const measure = () => {
@@ -74,6 +90,7 @@ function CoraTour() {
       }
     : null;
 
+  // Si hay recuadro, el globo va debajo; si no cabe, arriba. Sin recuadro, al centro.
   let tipStyle;
   if (rect) {
     const below = rect.bottom + 14;

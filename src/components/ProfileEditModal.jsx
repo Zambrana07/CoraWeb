@@ -1,3 +1,11 @@
+/**
+ * ProfileEditModal.jsx — formulario para cambiar nombre, bio y foto.
+ *
+ * Recibe valores iniciales del padre (Perfil.jsx).
+ * Al elegir un archivo, FileReader lo convierte a data URL (texto base64)
+ * para previsualizarlo y enviarlo al API sin subir un archivo binario.
+ * Cancelar → onClose. Guardar → onSave(nombre, about, imagen).
+ */
 import React, { useState, useEffect } from "react";
 import "../assets/styles/ProfileEditModal.css";
 
@@ -7,6 +15,7 @@ export default function ProfileEditModal({ open, onClose, initialName, initialAb
   const [preview, setPreview] = useState(initialImage || null);
   const [fileData, setFileData] = useState(null);
 
+  // Cada vez que se abre (o cambian los datos del perfil) se resetea el formulario.
   useEffect(() => {
     setName(initialName || "");
     setAbout(initialAbout || "");

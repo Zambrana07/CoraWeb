@@ -1,3 +1,8 @@
+/**
+ * NotFound.jsx — se muestra cuando la URL no coincide con ninguna ruta de App.jsx.
+ * Escribe la ruta en la consola (útil al depurar enlaces rotos)
+ * y ofrece un enlace de vuelta al mapa.
+ */
 import { useLocation } from "react-router-dom";
 import { useEffect } from "react";
 

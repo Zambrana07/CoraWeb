@@ -1,3 +1,14 @@
+/**
+ * AgenteCoraChat.jsx — burbuja flotante (esquina inferior derecha).
+ *
+ * No llama a una IA en la nube. Cada mensaje pasa por answerQuestion()
+ * en src/agent/agenteCora.js (palabras clave y reglas fijas).
+ *
+ * Si la respuesta trae action: "tour", se cierra el chat y se dispara
+ * el evento "cora-start-tour" para que CoraTour recorra la interfaz.
+ *
+ * memo() evita re-renders cuando el padre (Layout) se actualiza.
+ */
 import { useEffect, useRef, useState, useCallback, memo } from "react";
 import { answerQuestion, CONVERSATION_STARTERS } from "../agent/agenteCora";
 import coraLogo from "../assets/img/Cora-Agent.png";
@@ -14,6 +25,7 @@ function AgenteCoraChat() {
   const [input, setInput] = useState("");
   const endRef = useRef(null);
 
+  // Al abrir o al llegar un mensaje, baja el scroll al último globo.
   useEffect(() => {
     if (open) endRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, open]);
@@ -62,6 +74,7 @@ function AgenteCoraChat() {
               </div>
             ))}
 
+            {/* Sugerencias solo mientras no hay conversación (solo el saludo). */}
             {messages.length === 1 && (
               <div className="cora-starters">
                 {CONVERSATION_STARTERS.map((s) => (

@@ -1,3 +1,11 @@
+/**
+ * CoraTour.css — overlay del tutorial guiado.
+ *
+ * .cora-tour no captura clics (pointer-events: none) para no bloquear la app,
+ * excepto el globo (.cora-tour-tip) que sí es clicable.
+ * .cora-tour-spotlight usa un box-shadow enorme (9999px) para oscurecer
+ * todo menos el recuadro del botón del paso actual.
+ */
 .cora-tour {
   position: fixed;
   inset: 0;
@@ -5,6 +13,7 @@
   pointer-events: none;
 }
 
+/* Oscurece toda la pantalla cuando el paso no tiene un botón que resaltar. */
 .cora-tour-dim {
   position: fixed;
   inset: 0;
@@ -12,6 +21,7 @@
   pointer-events: auto;
 }
 
+/* Recuadro alrededor del botón; el halo oscurece el resto. */
 .cora-tour-spotlight {
   position: fixed;
   border-radius: 12px;
@@ -21,6 +31,7 @@
   pointer-events: none;
 }
 
+/* Globo de texto con título, explicación y botones Atrás / Siguiente. */
 .cora-tour-tip {
   position: fixed;
   width: 300px;

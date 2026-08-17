@@ -1,3 +1,15 @@
+/**
+ * ArchiveroPage.jsx — catálogo de todos los puntos (el mapa es geográfico; esto es buscar/comentar).
+ *
+ * - GET /api/reportes al montar.
+ * - Canal Supabase "reportes-realtime" para INSERT/UPDATE/DELETE en vivo.
+ * - Tres carruseles (mismo listado filtrado) + lista "Todos los puntos".
+ * - PointDetailModal: fotos, campos, riesgo de AgenteCora y comentarios.
+ * - Si Profile navega con state.pointId, abre ese reporte solo.
+ *
+ * allowedRegions está hardcodeado: cualquier otra región se muestra como Colegio CTP CIT.
+ * firebasePoints es un nombre viejo; los datos vienen de Postgres.
+ */
 import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "../components/Header";
@@ -14,11 +26,13 @@ import { supabase } from "../lib/supabaseClient";
 const imagePool = [basura1, basura2, basura3];
 const allowedRegions = ["Colegio CTP CIT", "Soda armonia"];
 
+// Texto genérico del modal cuando el reporte no trae descripción propia.
 const defaultDescription = (name, region, verified) =>
   `${name} es un punto de recoleccion en ${region}. ${verified
     ? "Este punto ha sido verificado por la comunidad."
     : "Este punto no ha sido verificado por la comunidad."
   }`;
+// Elige una imagen de relleno de forma estable a partir del id (no aleatoria en cada render).
 const hashStringToIndex = (value, modulo) => {
   const text = String(value || "");
   let hash = 0;
@@ -54,6 +68,7 @@ const fetchCommentsFromApi = async (pointId) => {
 
 const carouselSections = ["Principal", "Puntos frecuentes", "Agregados recientemente"];
 const regionOptions = allowedRegions;
+// Cuántas tarjetas caben en el carrusel según el ancho de pantalla.
 const getItemsPerView = () => {
   if (window.innerWidth <= 640) {
     return 1;
@@ -64,6 +79,7 @@ const getItemsPerView = () => {
   return 3;
 };
 
+// Normaliza una fila de `reportes` al objeto que pintan carrusel y modal.
 function formatReporte(reporte) {
   const region = allowedRegions.includes(reporte.region_name)
     ? reporte.region_name
@@ -96,6 +112,7 @@ function formatReporte(reporte) {
   return point;
 }
 
+// Modal de un punto: datos, análisis de riesgo y hilo de comentarios.
 function PointDetailModal({ point, onClose }) {
   const [commentAuthor, setCommentAuthor] = useState("");
   const [commentText, setCommentText] = useState("");
@@ -332,6 +349,7 @@ function PointDetailModal({ point, onClose }) {
   );
 }
 
+// Página: búsqueda, filtros, carruseles y lista. selectedPoint abre el modal.
 function ArchiveroPage() {
   const location = useLocation();
 

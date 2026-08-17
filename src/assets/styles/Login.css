@@ -1,3 +1,10 @@
+/**
+ * Login.css — pantalla de inicio de sesión (fondo de naturaleza + tarjeta).
+ *
+ * .login-page::before es un velo teal para que el texto se lea sobre la foto.
+ * La tarjeta entra con una animación corta (se desactiva con reduced-motion).
+ */
+/* Página a pantalla completa con foto de fondo fija. */
 .login-page {
   display: flex;
   flex-direction: column;
@@ -12,6 +19,7 @@
   background-attachment: fixed;
 }
 
+/* Velo semitransparente para que la tarjeta se lea sobre la foto. */
 .login-page::before {
   content: "";
   position: absolute;
@@ -36,6 +44,7 @@
   padding: 2rem 1.25rem 1.5rem;
 }
 
+/* Tarjeta del formulario: vidrio esmerilado, sombra teal, animación de entrada. */
 .login-card {
   width: min(420px, 100%);
   background: linear-gradient(180deg, rgba(255, 254, 248, 0.97) 0%, rgba(255, 255, 255, 0.94) 100%);
@@ -132,6 +141,7 @@
   box-shadow: 0 0 0 3px rgba(0, 151, 141, 0.18);
 }
 
+/* Botón de envío: degradado teal; se atenúa cuando loading=true. */
 .login-submit {
   width: 100%;
   margin-top: 0.5rem;
@@ -167,6 +177,7 @@
   cursor: wait;
 }
 
+/* Mensaje rojo cuando el login falla. */
 .login-error {
   margin: 0 0 0.85rem;
   padding: 0.65rem 0.85rem;

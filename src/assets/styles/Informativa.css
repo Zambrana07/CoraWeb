@@ -1,3 +1,10 @@
+/**
+ * Informativa.css — página educativa: galería 3D, panel de detalle y leyenda de colores.
+ *
+ * Variables --index, --transition, --gap-base y --shift las actualiza
+ * informativaGallery.js al hacer hover. El resto es layout (intro, detalle,
+ * cards verde/amarillo/rojo de AgenteCora).
+ */
 .informativa-page {
   --index: clamp(16px, 1.25vw + 1.25vh, 24px);
   --transition: cubic-bezier(0.1, 0.7, 0, 1);
@@ -70,7 +77,9 @@
   padding: 0.6rem 1rem;
 }
 
-/* ===== Galeria 3D ===== */
+/* ===== Galeria 3D =====
+   .item, .is-hover-main, .is-left-N, .is-right-N y --shift los aplica
+   informativaGallery.js. No edites esas clases sin mirar el JS. */
 .wrapper {
   height: clamp(360px, 56vh, 540px);
   display: flex;

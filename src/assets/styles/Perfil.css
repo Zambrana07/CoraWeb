@@ -1,3 +1,6 @@
+/**
+ * Perfil: banner, avatar superpuesto, stats y grid de posts.
+ */
 body {
   margin: 0;
   font-family: "Segoe UI", sans-serif;
@@ -11,7 +14,7 @@ body {
   overflow-y: auto;
 }
 
-/* HEADER */
+/* HEADER: banner (foto Pexels) con esquinas inferiores redondeadas. */
 .header {
   position: relative;
   background-color: #FFFDEA;
@@ -24,6 +27,7 @@ body {
   background-size: cover;
 }
 
+/* Avatar circular que se sale del banner hacia abajo (bottom: -40px). */
 .avatar {
   position: absolute;
   bottom: -40px;
@@ -36,7 +40,7 @@ body {
   overflow: hidden;
 }
 
-/* STATS */
+/* STATS: contadores de posts y verificados, abajo a la derecha del banner. */
 .stats {
   position: absolute;
   bottom: -20px;
@@ -87,7 +91,7 @@ p {
   color: #333;
 }
 
-/* POSTS */
+/* POSTS: grid de reportes del usuario (cada tarjeta scrollea por dentro). */
 .posts-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -164,6 +168,7 @@ p {
   background-color: #7a7a7a;
 }
 
+/* Mini-mapa Leaflet dentro de cada post; clic navega al Home. */
 .mini-map-wrapper {
   height: 80px;
   width: 100%;
@@ -292,6 +297,7 @@ p {
   width: 24px;
   filter:invert(1) drop-shadow(0 0 2px rgba(0, 42, 255, 0.8));
 }
+/* Lápiz sobre el banner para abrir ProfileEditModal. */
 .edit-profile-btn {
   position: absolute;
   top: 10px;
