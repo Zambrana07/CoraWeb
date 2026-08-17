@@ -11,6 +11,11 @@ import { supabase } from '../lib/supabaseClient';
 import { analyzeReport } from '../agent/agenteCora';
 import '../assets/styles/AgenteCora.css';
 
+const bounds = [
+  [-90, -180], // Esquina suroeste (Polo Sur, Antimeridiano oeste)
+  [90, 180]    // Esquina noreste (Polo Norte, Antimeridiano este)
+];
+
 
 // Rectangulo de calificacion que AgenteCora coloca junto al punto
 const RiskCard = memo(({ analysis }) => {
@@ -656,7 +661,14 @@ function MyMapComponent() {
                 </div>
             )}
 
-            <MapContainer center={[9.9772, -84.1833]} zoom={13} style={{ height: '100%', width: '100%' }}>
+            <MapContainer 
+                center={[9.9772, -84.1833]} 
+                zoom={13} 
+                minZoom={5} 
+                maxBounds={bounds}
+                maxBoundsViscosity={1.0}
+                style={{ height: '100%', width: '100%' }}
+            >
                 <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
                 <FocusMap position={focusPosition} />
 
